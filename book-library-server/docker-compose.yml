@@ -6,8 +6,11 @@ services:
     ports:
       - "${PORT:-3000}:3000"
     volumes:
-      - .:/usr/src/app
-      - /usr/src/app/node_modules
+      - ./src:/usr/src/app/src
+      - ./package.json:/usr/src/app/package.json
+      - ./tsconfig.json:/usr/src/app/tsconfig.json
+      - ./nodemon.json:/usr/src/app/nodemon.json
+      - ./.env:/usr/src/app/.env
     environment:
       - NODE_ENV=development
       - POSTGRES_HOST=book_library_postgres
@@ -15,6 +18,8 @@ services:
       - POSTGRES_USER=${POSTGRES_USER:-book_library_user_postgres}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-book_library_password_postgres}
       - POSTGRES_DB=${POSTGRES_DB:-book_library}
+      - CHOKIDAR_USEPOLLING=true
+      - CHOKIDAR_INTERVAL=1000
     env_file:
       - .env
     command: npm run dev
