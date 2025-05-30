@@ -20,3 +20,13 @@ export const getBookByIdSchema: FastifySchema = {
     required: ['id'],
   },
 };
+
+export const searchBooksMatchSchema: FastifySchema = {
+  querystring: {
+    type: 'object',
+    properties: {
+      search: { type: 'string' },
+    },
+    required: ['search'],
+  },
+};

@@ -4,7 +4,7 @@ services:
       context: .
       dockerfile: Dockerfile.dev
     ports:
-      - "${PORT:-3000}:3000"
+      - "${PORT:-3001}:3001"
     volumes:
       - ./src:/usr/src/app/src
       - ./package.json:/usr/src/app/package.json
@@ -23,23 +23,9 @@ services:
     env_file:
       - .env
     command: npm run dev
-    depends_on:
-      postgres:
-        condition: service_healthy
+    networks:
+      - book-library-network
 
-  postgres:
-    image: postgres:15-alpine
-    ports:
-      - "5432:5432"
-    environment:
-      - POSTGRES_USER=${POSTGRES_USER:-book_library_user_postgres}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-book_library_password_postgres}
-      - POSTGRES_DB=${POSTGRES_DB:-book_library}
-    volumes:
-      - ./data/postgres:/var/lib/postgresql/data
-      - ./db/init:/docker-entrypoint-initdb.d
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-book_library_user_postgres} -d ${POSTGRES_DB:-book_library}"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
+networks:
+  book-library-network:
+    external: true

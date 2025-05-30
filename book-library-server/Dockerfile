@@ -29,7 +29,7 @@ RUN npm ci --only=production
 COPY --from=builder /usr/src/app/dist ./dist
 
 # Expose default port
-EXPOSE 3000
+EXPOSE 3001
 
 # Set Node to production mode
 ENV NODE_ENV=production
