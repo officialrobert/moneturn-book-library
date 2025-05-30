@@ -1,0 +1,17 @@
+{
+  "name": "moneturn-book-library",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev:server": "cd book-library-server && npm run dev",
+    "dev:client": "cd book-library-alpha && npm run dev",
+    "dev": "npx kill-port 3001 && concurrently --kill-others 'npm run dev:server' 'npm run dev:client'"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
