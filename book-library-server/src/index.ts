@@ -63,12 +63,14 @@ export async function main() {
     console.log('POSTGRES_PASSWORD: ', POSTGRES_PASSWORD);
     console.log('POSTGRES_DB: ', POSTGRES_DB);
 
-    await checkDatabaseConnection();
+    const dbConnected = await checkDatabaseConnection();
 
-    // Start server
-    await app.listen({ port: PORT });
-    await insertIfInitialDataForAuthorAndBooksNotPresent();
-    console.log('SERVER RUNNING ON PORT: ', PORT);
+    if (dbConnected) {
+      // Start server
+      await app.listen({ port: PORT });
+      await insertIfInitialDataForAuthorAndBooksNotPresent();
+      console.log('SERVER RUNNING ON PORT: ', PORT);
+    }
   } catch (err) {
     console.log(err);
   }
