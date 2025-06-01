@@ -13,6 +13,7 @@ import { insertIfInitialDataForAuthorAndBooksNotPresent } from '@/helpers';
 import ApiRoutes from '@/routes';
 import fastify from 'fastify';
 import fastifyStatic from '@fastify/static';
+import cors from '@fastify/cors';
 import path from 'path';
 
 export const app = fastify({
@@ -20,9 +21,13 @@ export const app = fastify({
   trustProxy: true,
 });
 
+app.register(cors, {
+  origin: true,
+});
+
 app.register(ApiRoutes, { prefix: '/v1' });
 
-app.setErrorHandler(async (err, request, reply) => {
+app.setErrorHandler(async (err, _request, reply) => {
   const msg = err?.message || '';
   const code = reply?.statusCode;
 

@@ -14,6 +14,7 @@
     "docker:db:up": "docker-compose -f docker-compose.db.yml up -d"
   },
   "dependencies": {
+    "@fastify/cors": "^11.0.1",
     "@fastify/env": "^4.3.0",
     "@fastify/static": "^8.2.0",
     "@types/lodash": "^4.17.17",

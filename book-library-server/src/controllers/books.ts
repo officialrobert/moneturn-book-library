@@ -72,6 +72,12 @@ export async function getBookByIdController(
   reply: FastifyReply,
 ): Promise<{ book: IBook }> {
   const { id } = request.params;
+
+  if (!id) {
+    reply.status(400);
+    throw new Error('Book id is required');
+  }
+
   const bookInfo = await getBookInfoById(id);
 
   if (!bookInfo) {
