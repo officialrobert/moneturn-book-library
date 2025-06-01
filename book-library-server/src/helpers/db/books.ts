@@ -2,6 +2,7 @@ import { db, books } from '@/db';
 import { head, isEmpty, map, omit } from 'lodash';
 import { IBook } from '@/types';
 import { eq } from 'drizzle-orm';
+import { formatBookImagePreviewProperty } from '../books';
 
 /**
  * Creates a new book in the database.
@@ -67,6 +68,7 @@ export async function getBookInfoById(
     const bookDateEnriched = head(
       map(booksList, (book) => ({
         ...book,
+        imagePreview: formatBookImagePreviewProperty(book.imagePreview),
         createdAt: book.createdAt?.toISOString() || null,
         updatedAt: book.updatedAt?.toISOString() || null,
         deletedAt: book.deletedAt?.toISOString() || null,

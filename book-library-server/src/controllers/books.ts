@@ -110,6 +110,7 @@ export async function getBooksByPageController(
       })
       .from(books)
       .where(or(isNull(books.deletedAt), gt(books.deletedAt, currentDate)))
+      .orderBy(desc(books.createdAt))
       .limit(limit)
       .offset(offset),
     db

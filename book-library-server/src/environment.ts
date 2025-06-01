@@ -15,3 +15,9 @@ export const POSTGRES_PASSWORD = process.env.POSTGRES_PASSWORD || '';
 export const POSTGRES_DB = process.env.POSTGRES_DB || '';
 
 export const DATABASE_URL = process.env.DATABASE_URL || '';
+
+export const isDevelopment = ENVIRONMENT === 'development';
+
+export const isProduction = ENVIRONMENT === 'production';
+
+export const SERVER_BASE_URL = process.env.SERVER_BASE_URL || '';
