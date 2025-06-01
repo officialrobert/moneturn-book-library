@@ -27,6 +27,8 @@ RUN npm ci --only=production
 
 # Copy built files from builder stage
 COPY --from=builder /usr/src/app/dist ./dist
+COPY --from=builder /usr/src/app/assets ./dist/assets
+
 
 # Expose default port
 EXPOSE 3001

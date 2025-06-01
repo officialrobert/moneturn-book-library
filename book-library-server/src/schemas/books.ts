@@ -30,3 +30,18 @@ export const searchBooksMatchSchema: FastifySchema = {
     required: ['search'],
   },
 };
+
+
+export const insertNewBookSchema: FastifySchema = {
+  body: {
+    type: 'object',
+    properties: {
+      title: { type: 'string' },
+      shortSummary: { type: 'string' },
+      imagePreview: { type: 'string' },
+      authorId: { type: 'string' },
+    },
+    required: ['title', 'shortSummary', 'imagePreview', 'authorId'],
+    additionalProperties: false,
+  },
+};

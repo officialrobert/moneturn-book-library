@@ -2,7 +2,7 @@
   "watch": ["src"],
   "ext": ".ts",
   "ignore": ["src/**/*.spec.ts"],
-  "exec": "ts-node -r tsconfig-paths/register ./src/index.ts",
+  "exec": "npx kill-port 3001 && tsc -p tsconfig.json && tsc-alias -p tsconfig.json && npm run copy:assets:build && npm run start",
   "legacyWatch": true,
   "delay": 0.5
 }

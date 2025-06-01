@@ -17,3 +17,10 @@ export interface IBook {
   updatedAt: string | null;
   deletedAt: string | null;
 }
+
+export interface IPagination {
+  currentPage: number;
+  totalPages: number;
+  totalItems: number;
+  itemsPerPage: number;
+}

@@ -8,8 +8,12 @@ import {
   POSTGRES_DB,
 } from '@/environment';
 import { checkDatabaseConnection } from '@/db';
+import { insertIfInitialDataForAuthorAndBooksNotPresent } from '@/helpers';
+
 import ApiRoutes from '@/routes';
 import fastify from 'fastify';
+import fastifyStatic from '@fastify/static';
+import path from 'path';
 
 export const app = fastify({
   logger: false,
@@ -32,6 +36,24 @@ app.setErrorHandler(async (err, request, reply) => {
   });
 });
 
+app.register(fastifyStatic, {
+  root: path.join(__dirname, './assets/images'),
+  prefix: '/assets/images/',
+  decorateReply: false,
+  setHeaders: (res) => {
+    // Set permissive CORS headers for all static assets
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS');
+    res.setHeader(
+      'Access-Control-Allow-Headers',
+      'Origin, X-Requested-With, Content-Type, Accept, Range',
+    );
+    res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+    // Set cache control for better performance
+    res.setHeader('Cache-Control', 'public, max-age=86400');
+  },
+});
+
 export async function main() {
   try {
     console.log('RUNNING ENVIRONMENT: ', ENVIRONMENT);
@@ -42,9 +64,10 @@ export async function main() {
     console.log('POSTGRES_DB: ', POSTGRES_DB);
 
     await checkDatabaseConnection();
+
     // Start server
     await app.listen({ port: PORT });
-
+    await insertIfInitialDataForAuthorAndBooksNotPresent();
     console.log('SERVER RUNNING ON PORT: ', PORT);
   } catch (err) {
     console.log(err);
