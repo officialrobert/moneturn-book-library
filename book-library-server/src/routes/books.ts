@@ -3,12 +3,14 @@ import {
   getBooksByPageController,
   insertNewBookController,
   searchBooksMatchController,
+  updateBookInfoByIdController,
 } from '@/controllers';
 import {
   getBookByIdSchema,
   getBooksByPageShema,
   insertNewBookSchema,
   searchBooksMatchSchema,
+  updateBookInfoByIdSchema,
 } from '@/schemas';
 import { FastifyInstance } from 'fastify';
 
@@ -27,4 +29,9 @@ export default async function BooksRoutes(
   );
   fastify.post('/', { schema: insertNewBookSchema }, insertNewBookController);
   fastify.get('/:id', { schema: getBookByIdSchema }, getBookByIdController);
+  fastify.patch(
+    '/:id',
+    { schema: updateBookInfoByIdSchema },
+    updateBookInfoByIdController,
+  );
 }

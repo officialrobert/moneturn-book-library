@@ -8,6 +8,7 @@ import {
   getNowDateInISOString,
   updateAuthorPropsById,
 } from '@/helpers';
+import { isEmpty } from 'lodash';
 
 /**
  * Get author info by id
@@ -101,7 +102,10 @@ export async function updateAuthorInfoByIdController(
     throw new Error("'name' or 'bio' is required");
   }
 
-  const updatedAuthor = await updateAuthorPropsById(id, { name, bio });
+  const updatedAuthor = await updateAuthorPropsById(id, {
+    ...(!isEmpty(name) && { name }),
+    ...(!isEmpty(bio) && { bio }),
+  });
 
   reply.status(200);
   return { author: updatedAuthor };

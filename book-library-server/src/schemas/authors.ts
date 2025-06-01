@@ -22,6 +22,16 @@ export const addNewAuthorInfoSchema: FastifySchema = {
   },
 };
 
+export const deleteAuthorByIdSchema: FastifySchema = {
+  params: {
+    type: 'object',
+    properties: {
+      id: { type: 'string' },
+    },
+    required: ['id'],
+  },
+};
+
 export const updateAuthorInfoByIdSchema: FastifySchema = {
   params: {
     type: 'object',

@@ -31,7 +31,6 @@ export const searchBooksMatchSchema: FastifySchema = {
   },
 };
 
-
 export const insertNewBookSchema: FastifySchema = {
   body: {
     type: 'object',
@@ -42,6 +41,26 @@ export const insertNewBookSchema: FastifySchema = {
       authorId: { type: 'string' },
     },
     required: ['title', 'shortSummary', 'imagePreview', 'authorId'],
+    additionalProperties: false,
+  },
+};
+
+export const updateBookInfoByIdSchema: FastifySchema = {
+  params: {
+    type: 'object',
+    properties: {
+      id: { type: 'string' },
+    },
+    required: ['id'],
+  },
+  body: {
+    type: 'object',
+    properties: {
+      title: { type: 'string' },
+      shortSummary: { type: 'string' },
+      imagePreview: { type: 'string' },
+      authorId: { type: 'string' },
+    },
     additionalProperties: false,
   },
 };
