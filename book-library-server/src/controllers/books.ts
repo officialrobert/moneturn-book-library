@@ -1,7 +1,7 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { eq, desc, and, sql, isNull, or, gt, ilike } from 'drizzle-orm';
 import { db, books } from '@/db';
-import { head, isNumber } from 'lodash';
+import { head, isNumber, toLower, trim } from 'lodash';
 import { IBook, IPagination } from '@/types';
 import {
   createNewBook,
@@ -125,16 +125,17 @@ export async function getBooksByPageController(
       return bookInfo;
     }),
   );
+  const pagination: IPagination = {
+    currentPage: page,
+    totalPages: Math.ceil(Number(head(totalCount)?.count) / limit),
+    totalItems: Number(head(totalCount)?.count),
+    itemsPerPage: limit,
+  };
 
   reply.status(200);
   return {
+    pagination,
     books: booksEnriched,
-    pagination: {
-      currentPage: page,
-      totalPages: Math.ceil(Number(head(totalCount)?.count) / limit),
-      totalItems: Number(head(totalCount)?.count),
-      itemsPerPage: limit,
-    },
   };
 }
 
@@ -222,7 +223,7 @@ export async function deleteBookInfoController(
 /**
  * Search books match using search query.
  *
- * @param {FastifyRequest<{Querystring: {search: string;limit?: number;};}>} request
+ * @param {FastifyRequest<{Querystring: {search: string;page?: number;limit?: number;};}>} request
  * @param {FastifyReply} reply
  * @returns {Promise<{ books: IBook[] }>} Returns list of books that match search query.
  */
@@ -230,29 +231,47 @@ export async function searchBooksMatchController(
   request: FastifyRequest<{
     Querystring: {
       search: string;
+      page?: number;
       limit?: number;
     };
   }>,
   reply: FastifyReply,
-): Promise<{ books: IBook[] }> {
-  const { search, limit } = request.query;
-
+): Promise<{ books: IBook[]; pagination: IPagination }> {
+  const { search, page = 1, limit } = request.query;
   const currentDate = getNowDateInISOString();
-
-  const booksList = await db
-    .select({
-      id: books.id,
-    })
-    .from(books)
-    .where(
-      and(
-        eq(books.deletedAt, null),
-        ilike(books.title, `%${search}%`),
-        or(isNull(books.deletedAt), gt(books.deletedAt, currentDate)),
+  const normalizedSearch = toLower(trim(search));
+  const targetLimit = isNumber(limit) && limit > 10 ? limit : 10;
+  const [booksList, totalCount] = await Promise.all([
+    db
+      .select({
+        id: books.id,
+      })
+      .from(books)
+      .where(
+        and(
+          or(
+            sql`LOWER(${books.title}) ILIKE ${`%${normalizedSearch}%`}`,
+            sql`LOWER(${books.shortSummary}) ILIKE ${`%${normalizedSearch}%`}`,
+          ),
+          or(isNull(books.deletedAt), gt(books.deletedAt, currentDate)),
+        ),
+      )
+      .orderBy(desc(books.createdAt))
+      .limit(targetLimit)
+      .offset((page - 1) * targetLimit),
+    db
+      .select({ count: sql`count(*)` })
+      .from(books)
+      .where(
+        and(
+          or(
+            sql`LOWER(${books.title}) ILIKE ${`%${normalizedSearch}%`}`,
+            sql`LOWER(${books.shortSummary}) ILIKE ${`%${normalizedSearch}%`}`,
+          ),
+          or(isNull(books.deletedAt), gt(books.deletedAt, currentDate)),
+        ),
       ),
-    )
-    .orderBy(desc(books.createdAt))
-    .limit(isNumber(limit) && limit > 10 ? limit : 10);
+  ]);
 
   const booksEnriched = await Promise.all(
     booksList.map(async (book) => {
@@ -260,9 +279,17 @@ export async function searchBooksMatchController(
       return bookInfo;
     }),
   );
+  const totalPages = Math.ceil(Number(head(totalCount)?.count) / targetLimit);
+  const pagination: IPagination = {
+    currentPage: page,
+    totalPages: isNumber(totalPages) && totalPages > 0 ? totalPages : 1,
+    totalItems: Number(head(totalCount)?.count),
+    itemsPerPage: targetLimit,
+  };
 
   reply.status(200);
   return {
     books: booksEnriched,
+    pagination,
   };
 }

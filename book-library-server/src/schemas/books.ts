@@ -26,6 +26,8 @@ export const searchBooksMatchSchema: FastifySchema = {
     type: 'object',
     properties: {
       search: { type: 'string' },
+      page: { type: 'number' },
+      limit: { type: 'number' },
     },
     required: ['search'],
   },
