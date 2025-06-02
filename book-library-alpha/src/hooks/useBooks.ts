@@ -1,13 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
 import { useBooksStore } from '../store';
 import { useShallow } from 'zustand/shallow';
-import { getServerApiBaseUrl } from '../helpers';
 import { useMemo } from 'react';
 import { filter } from 'lodash';
-import type { IBookWithAuthor, IPagination } from '../types';
 import { useParams } from 'react-router';
-
-import axios from 'axios';
+import { getBookInfoByIdApi, getBooksListByPageApi } from '../apis';
 
 const useBooks = () => {
   const { booksListCurrentPage } = useBooksStore(
@@ -24,42 +21,22 @@ const useBooks = () => {
     error: errorFetchingBooksList,
   } = useQuery({
     queryKey: ['booksList', booksListCurrentPage],
-    queryFn: async () => {
-      const res = await axios.get<{
-        books: IBookWithAuthor[];
-        pagination: IPagination;
-      }>(
-        `${getServerApiBaseUrl()}/books/list?page=${booksListCurrentPage}&limit=10`,
-      );
-
-      return res.data;
-    },
+    queryFn: () => getBooksListByPageApi({ page: booksListCurrentPage }),
   });
 
   const {
-    data: bookInfo,
+    data: book,
     isLoading: isFetchingBookInfo,
     error: errorFetchingBookInfo,
   } = useQuery({
     queryKey: ['bookInfo', id],
-    queryFn: async () => {
-      if (!id) {
-        throw new Error('Book id is required');
-      }
-
-      const res = await axios.get<{ book: IBookWithAuthor }>(
-        `${getServerApiBaseUrl()}/books/${id}`,
-      );
-      return res.data;
-    },
+    queryFn: () => getBookInfoByIdApi(id || ''),
   });
 
   const books = useMemo(
     () => filter(booksListMetadata?.books || [], (item) => !!item?.id),
     [booksListMetadata],
   );
-
-  const book = useMemo(() => bookInfo?.book || null, [bookInfo]);
 
   return {
     books,

@@ -18,6 +18,13 @@ export interface IBook {
   deletedAt: string | null;
 }
 
+export interface INewBookSubmitForm {
+  title: string;
+  shortSummary: string;
+  imagePreview: string;
+  authorId: string | null;
+}
+
 export interface IBookWithAuthor extends IBook {
   author: IAuthor;
 }

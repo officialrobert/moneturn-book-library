@@ -3,12 +3,11 @@ import { Button, Input, Space } from 'antd';
 import { cloneDeep, map } from 'lodash';
 import { useForm, Controller, type SubmitHandler } from 'react-hook-form';
 import { useMemo, useState } from 'react';
-import type { IBookWithAuthor, IPagination } from '../../types';
-import { getServerApiBaseUrl } from '../../helpers';
+import type { IBookWithAuthor } from '../../types';
+import { searchForBooksApi } from '../../apis';
 
 import Header from '../../common/header';
 import BookCard from '../../common/book-card';
-import axios from 'axios';
 
 const { Search } = Input;
 
@@ -25,12 +24,9 @@ const DefaultPage = () => {
 
   const handleSearch = useDebounce(async (searchInput: string) => {
     try {
-      const res = await axios.get<{
-        books: IBookWithAuthor[];
-        pagination: IPagination;
-      }>(`${getServerApiBaseUrl()}/books/search?search=${searchInput}`);
-
-      const { books } = res.data;
+      const { books } = await searchForBooksApi({
+        search: searchInput,
+      });
 
       setSearchResults(cloneDeep(books));
       setShowSearchResults(true);
