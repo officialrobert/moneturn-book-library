@@ -75,6 +75,12 @@ PUT /v1/authors/{id}
 DELETE /v1/authors/{id}
 ```
 
+### Search authors match
+
+```http
+GET /v1/authors/search?search={searchQuery}
+```
+
 
 ### We use Drizzle ORM for ORMs and migrations
 

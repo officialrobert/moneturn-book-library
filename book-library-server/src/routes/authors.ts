@@ -3,6 +3,7 @@ import {
   deleteAuthorInfoController,
   getAuthorInfoByIdController,
   getAuthorListByPageController,
+  searchAuthorsMatchController,
   updateAuthorInfoByIdController,
 } from '@/controllers';
 import {
@@ -10,6 +11,7 @@ import {
   deleteAuthorByIdSchema,
   getAuthorByIdSchema,
   getAuthorListByPageSchema,
+  searchAuthorsMatchSchema,
   updateAuthorInfoByIdSchema,
 } from '@/schemas';
 import { FastifyInstance } from 'fastify';
@@ -42,5 +44,11 @@ export default async function AuthorRoutes(
     '/list',
     { schema: getAuthorListByPageSchema },
     getAuthorListByPageController,
+  );
+
+  fastify.get(
+    '/search',
+    { schema: searchAuthorsMatchSchema },
+    searchAuthorsMatchController,
   );
 }

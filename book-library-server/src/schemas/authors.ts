@@ -60,3 +60,15 @@ export const updateAuthorInfoByIdSchema: FastifySchema = {
     additionalProperties: false,
   },
 };
+
+export const searchAuthorsMatchSchema: FastifySchema = {
+  querystring: {
+    type: 'object',
+    properties: {
+      search: { type: 'string' },
+      page: { type: 'number' },
+      limit: { type: 'number' },
+    },
+    required: ['search'],
+  },
+};
