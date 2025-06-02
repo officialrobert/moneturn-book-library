@@ -66,3 +66,13 @@ export const updateBookInfoByIdSchema: FastifySchema = {
     additionalProperties: false,
   },
 };
+
+export const deleteBookInfoByIdSchema: FastifySchema = {
+  params: {
+    type: 'object',
+    properties: {
+      id: { type: 'string' },
+    },
+    required: ['id'],
+  },
+};

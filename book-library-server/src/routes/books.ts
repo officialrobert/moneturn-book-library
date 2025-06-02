@@ -1,4 +1,5 @@
 import {
+  deleteBookInfoController,
   getBookByIdController,
   getBooksByPageController,
   insertNewBookController,
@@ -6,6 +7,7 @@ import {
   updateBookInfoByIdController,
 } from '@/controllers';
 import {
+  deleteBookInfoByIdSchema,
   getBookByIdSchema,
   getBooksByPageShema,
   insertNewBookSchema,
@@ -33,5 +35,10 @@ export default async function BooksRoutes(
     '/:id',
     { schema: updateBookInfoByIdSchema },
     updateBookInfoByIdController,
+  );
+  fastify.delete(
+    '/:id',
+    { schema: deleteBookInfoByIdSchema },
+    deleteBookInfoController,
   );
 }
