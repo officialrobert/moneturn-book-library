@@ -18,6 +18,10 @@ export interface IBook {
   deletedAt: string | null;
 }
 
+export interface IBookWithAuthor extends IBook {
+  author: IAuthor;
+}
+
 export interface IPagination {
   currentPage: number;
   totalPages: number;

@@ -91,3 +91,11 @@ Navigate to the `book-library-alpha` directory and run
 ```bash
 npm run dev
 ```
+
+
+
+## Links
+
+Link to the server API docs: [Server API](./book-library-server/README.md)
+
+Link to the client app docs: [Client App](./book-library-alpha/README.md)

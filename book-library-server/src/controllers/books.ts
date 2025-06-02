@@ -2,10 +2,11 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 import { desc, and, sql, isNull, or, gt } from 'drizzle-orm';
 import { db, books } from '@/db';
 import { head, isNumber, toLower, trim } from 'lodash';
-import { IBook, IPagination } from '@/types';
+import { IBook, IBookWithAuthor, IPagination } from '@/types';
 import {
   createNewBook,
   deleteBookById,
+  getAuthorById,
   getBookInfoById,
   getNowDateInISOString,
   updateBookPropsById,
@@ -61,7 +62,7 @@ export async function insertNewBookController(
  *
  * @param {FastifyRequest<{Params: {id: string;};}>} request
  * @param {FastifyReply} reply
- * @returns {Promise<{ book: IBook }>}
+ * @returns {Promise<{ book: IBookWithAuthor }>}
  */
 export async function getBookByIdController(
   request: FastifyRequest<{
@@ -70,7 +71,7 @@ export async function getBookByIdController(
     };
   }>,
   reply: FastifyReply,
-): Promise<{ book: IBook }> {
+): Promise<{ book: IBookWithAuthor }> {
   const { id } = request.params;
 
   if (!id) {
@@ -85,8 +86,10 @@ export async function getBookByIdController(
     throw new Error('Book not found');
   }
 
+  const authorInfo = await getAuthorById(bookInfo.authorId);
+
   reply.status(200);
-  return { book: bookInfo };
+  return { book: { ...bookInfo, author: authorInfo } };
 }
 
 /**
@@ -94,7 +97,7 @@ export async function getBookByIdController(
  *
  * @param {FastifyRequest<{Querystring: {page: number;limit: number;};}>} request
  * @param {FastifyReply} reply
- * @returns {Promise<{ books: IBook[]; pagination: IPagination }>}
+ * @returns {Promise<{ books: IBookWithAuthor[]; pagination: IPagination }>}
  */
 export async function getBooksByPageController(
   request: FastifyRequest<{
@@ -104,7 +107,7 @@ export async function getBooksByPageController(
     };
   }>,
   reply: FastifyReply,
-): Promise<{ books: IBook[]; pagination: IPagination }> {
+): Promise<{ books: IBookWithAuthor[]; pagination: IPagination }> {
   const { page, limit } = request.query;
   const offset = (page - 1) * limit;
   const currentDate = getNowDateInISOString();
@@ -128,7 +131,12 @@ export async function getBooksByPageController(
   const booksEnriched = await Promise.all(
     booksResult.map(async (book) => {
       const bookInfo = await getBookInfoById(book.id, true);
-      return bookInfo;
+      const authorInfo = await getAuthorById(bookInfo.authorId);
+
+      return {
+        ...bookInfo,
+        author: authorInfo,
+      };
     }),
   );
   const pagination: IPagination = {
@@ -231,7 +239,7 @@ export async function deleteBookInfoController(
  *
  * @param {FastifyRequest<{Querystring: {search: string;page?: number;limit?: number;};}>} request
  * @param {FastifyReply} reply
- * @returns {Promise<{ books: IBook[] }>} Returns list of books that match search query.
+ * @returns {Promise<{ books: IBookWithAuthor[]; pagination: IPagination }>} Returns list of books that match search query.
  */
 export async function searchBooksMatchController(
   request: FastifyRequest<{
@@ -242,7 +250,7 @@ export async function searchBooksMatchController(
     };
   }>,
   reply: FastifyReply,
-): Promise<{ books: IBook[]; pagination: IPagination }> {
+): Promise<{ books: IBookWithAuthor[]; pagination: IPagination }> {
   const { search, page = 1, limit } = request.query;
   const currentDate = getNowDateInISOString();
   const normalizedSearch = toLower(trim(search));
@@ -282,7 +290,12 @@ export async function searchBooksMatchController(
   const booksEnriched = await Promise.all(
     booksList.map(async (book) => {
       const bookInfo = await getBookInfoById(book.id, true);
-      return bookInfo;
+      const authorInfo = await getAuthorById(bookInfo.authorId);
+
+      return {
+        ...bookInfo,
+        author: authorInfo,
+      };
     }),
   );
   const totalPages = Math.ceil(Number(head(totalCount)?.count) / targetLimit);

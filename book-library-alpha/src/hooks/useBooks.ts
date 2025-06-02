@@ -4,7 +4,7 @@ import { useShallow } from 'zustand/shallow';
 import { getServerApiBaseUrl } from '../helpers';
 import { useMemo } from 'react';
 import { filter } from 'lodash';
-import type { IBook, IPagination } from '../types';
+import type { IBookWithAuthor, IPagination } from '../types';
 import { useParams } from 'react-router';
 
 import axios from 'axios';
@@ -25,7 +25,10 @@ const useBooks = () => {
   } = useQuery({
     queryKey: ['booksList', booksListCurrentPage],
     queryFn: async () => {
-      const res = await axios.get<{ books: IBook[]; pagination: IPagination }>(
+      const res = await axios.get<{
+        books: IBookWithAuthor[];
+        pagination: IPagination;
+      }>(
         `${getServerApiBaseUrl()}/books/list?page=${booksListCurrentPage}&limit=10`,
       );
 
@@ -44,7 +47,7 @@ const useBooks = () => {
         throw new Error('Book id is required');
       }
 
-      const res = await axios.get<{ book: IBook }>(
+      const res = await axios.get<{ book: IBookWithAuthor }>(
         `${getServerApiBaseUrl()}/books/${id}`,
       );
       return res.data;

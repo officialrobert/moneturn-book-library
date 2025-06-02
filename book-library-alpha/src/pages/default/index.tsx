@@ -3,7 +3,7 @@ import { Button, Input, Space } from 'antd';
 import { cloneDeep, map } from 'lodash';
 import { useForm, Controller, type SubmitHandler } from 'react-hook-form';
 import { useMemo, useState } from 'react';
-import type { IBook, IPagination } from '../../types';
+import type { IBookWithAuthor, IPagination } from '../../types';
 import { getServerApiBaseUrl } from '../../helpers';
 
 import Header from '../../common/header';
@@ -17,7 +17,7 @@ const DefaultPage = () => {
 
   const { control, handleSubmit, watch } = useForm<{ searchInput: string }>();
 
-  const [searchResults, setSearchResults] = useState<IBook[]>([]);
+  const [searchResults, setSearchResults] = useState<IBookWithAuthor[]>([]);
 
   const [showSearchResults, setShowSearchResults] = useState(false);
 
@@ -25,9 +25,10 @@ const DefaultPage = () => {
 
   const handleSearch = useDebounce(async (searchInput: string) => {
     try {
-      const res = await axios.get<{ books: IBook[]; pagination: IPagination }>(
-        `${getServerApiBaseUrl()}/books/search?search=${searchInput}`,
-      );
+      const res = await axios.get<{
+        books: IBookWithAuthor[];
+        pagination: IPagination;
+      }>(`${getServerApiBaseUrl()}/books/search?search=${searchInput}`);
 
       const { books } = res.data;
 

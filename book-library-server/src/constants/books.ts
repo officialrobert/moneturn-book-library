@@ -46,4 +46,15 @@ export const initialBooksData: IBook[] = [
     updatedAt: null,
     deletedAt: null,
   },
+  {
+    id: 'e19d5a69-926b-44cb-b3b9-2d44330c5efa',
+    authorId: 'fd015f84-abc2-44f0-8c92-61549691a15f',
+    title: 'The Lost Symbol',
+    shortSummary:
+      'The Lost Symbol is a mystery novel written by American author Dan Brown and the second in the Da Vinci Code series. The book was first published in 2009 and has since become a global phenomenon, selling over 500 million copies worldwide and being translated into 80 languages.',
+    imagePreview: '/the-lost-symbol.jpg',
+    createdAt: '2025-06-02T11:11:58.614Z',
+    updatedAt: null,
+    deletedAt: null,
+  },
 ];
