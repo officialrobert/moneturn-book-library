@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { IBooksStore } from '../types';
+import { type IBooksStore, type IAppStore, SupportedThemes } from '../types';
 
 export const useBooksStore = create<IBooksStore>((set) => ({
   booksListCurrentPage: 1,
@@ -11,4 +11,10 @@ export const useBooksStore = create<IBooksStore>((set) => ({
 
   setSearchBooksListCurrentPage: (searchBooksListCurrentPage: number) =>
     set({ searchBooksListCurrentPage }),
+}));
+
+export const useAppStore = create<IAppStore>((set) => ({
+  theme: SupportedThemes.Light,
+
+  setTheme: (theme: SupportedThemes) => set({ theme }),
 }));

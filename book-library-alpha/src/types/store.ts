@@ -7,3 +7,14 @@ export interface IBooksStore {
 
   setSearchBooksListCurrentPage: (page: number) => void;
 }
+
+export enum SupportedThemes {
+  Dark = 'dark',
+  Light = 'light',
+}
+
+export interface IAppStore {
+  theme: SupportedThemes;
+
+  setTheme: (theme: SupportedThemes) => void;
+}
