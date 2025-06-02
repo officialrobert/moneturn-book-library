@@ -1,5 +1,5 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
-import { eq, desc, and, sql, isNull, or, gt, ilike } from 'drizzle-orm';
+import { desc, and, sql, isNull, or, gt } from 'drizzle-orm';
 import { db, books } from '@/db';
 import { head, isNumber, toLower, trim } from 'lodash';
 import { IBook, IPagination } from '@/types';

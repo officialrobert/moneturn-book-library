@@ -3,6 +3,8 @@ import { head, isEmpty, map, omit } from 'lodash';
 import { IBook } from '@/types';
 import { eq } from 'drizzle-orm';
 import { formatBookImagePreviewProperty } from '../books';
+import { NewBooksQueue } from '@/lib';
+import { v4 as uuid } from 'uuid';
 
 /**
  * Creates a new book in the database.
@@ -17,21 +19,27 @@ import { formatBookImagePreviewProperty } from '../books';
  */
 export async function createNewBook(book: IBook): Promise<IBook | null> {
   try {
-    const newBook = await db
-      .insert(books)
-      .values({
-        id: book.id,
-        title: book.title,
-        shortSummary: book.shortSummary,
-        imagePreview: book.imagePreview || null,
-        authorId: book.authorId || null,
-        createdAt: new Date(book.createdAt),
-        updatedAt: book.updatedAt ? new Date(book.updatedAt) : null,
-        deletedAt: book.deletedAt ? new Date(book.deletedAt) : null,
-      })
-      .returning();
+    const id = book.id || uuid();
 
-    return head(newBook) as unknown as IBook;
+    await NewBooksQueue.add(async () => {
+      const newBook = await db
+        .insert(books)
+        .values({
+          id,
+          title: book.title,
+          shortSummary: book.shortSummary,
+          imagePreview: book.imagePreview || null,
+          authorId: book.authorId || null,
+          createdAt: new Date(book.createdAt),
+          updatedAt: book.updatedAt ? new Date(book.updatedAt) : null,
+          deletedAt: book.deletedAt ? new Date(book.deletedAt) : null,
+        })
+        .returning();
+
+      return head(newBook) as unknown as IBook;
+    }, 'createBook');
+
+    return { ...book, id, updatedAt: null, deletedAt: null };
   } catch (err) {
     console.log('createNewBook() err:', err);
     return null;

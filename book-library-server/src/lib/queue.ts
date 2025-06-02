@@ -1,3 +1,10 @@
+import { isEmpty } from 'lodash';
+
+/**
+ * Every system has its limits, so in a real live production environment, we handle requests in a queue.
+ * At some point, at some scale, a limit is hit—so we handle requests in a queue.
+ * The class template below is a simple queue implementation inspired by the 'p-queue' library.
+ */
 export class Queue {
   concurrency = 1;
 
@@ -8,6 +15,7 @@ export class Queue {
   }[] = [];
 
   tasksRunning = false;
+  canStop = false;
 
   listeners: Record<
     'completed' | 'completedSingleFn',
@@ -23,14 +31,27 @@ export class Queue {
 
   add<T>(task: () => Promise<T>, name?: string): Promise<void> {
     return new Promise((resolve) => {
+      this.canStop = false;
       this.queuedTasks.push({ name, addedAt: Date.now(), fn: task });
 
-      this.run(true).finally(() => resolve());
+      if (this.tasksRunning) {
+        return resolve();
+      }
+
+      this.run().finally(() => resolve());
     });
   }
 
   isCompleted(): boolean {
-    return !this.queuedTasks?.length || this.queuedTasks.length === 0;
+    return isEmpty(this.queuedTasks);
+  }
+
+  stop() {
+    this.canStop = true;
+  }
+
+  start(): Promise<void> {
+    return this.run();
   }
 
   private async run(runOnce?: boolean): Promise<void> {
@@ -41,7 +62,7 @@ export class Queue {
         addedAt: number;
         fn: () => Promise<any>;
       }[] = [];
-
+      const canStop = this.canStop;
       this.tasksRunning = true;
 
       for (let i = 0; i < concurrency; i++) {
@@ -54,26 +75,31 @@ export class Queue {
         tasks.push(task);
       }
 
-      await Promise.all(
-        tasks.map(async (task) => {
-          await task.fn();
+      if (!canStop) {
+        await Promise.all(
+          tasks.map(async (task) => {
+            try {
+              await task.fn();
+              this.emit('completedSingleFn', { name: task?.name || '' });
+            } catch (err) {
+              console.error(err);
+            }
+          }),
+        );
 
-          this.emit('completedSingleFn', { name: task?.name || '' });
-        }),
-      );
+        this.tasksRunning = false;
 
-      this.tasksRunning = false;
-
-      if (this.queuedTasks.length <= 0) {
-        this.emit('completed', { name: 'all' });
+        if (isEmpty(this.queuedTasks)) {
+          this.emit('completed', { name: 'all' });
+        } else if (!runOnce) {
+          this.run();
+        }
+      } else {
+        this.tasksRunning = false;
       }
     } catch (err) {
       console.error(err);
       this.tasksRunning = false;
-    }
-
-    if (!runOnce) {
-      this.run();
     }
   }
 
@@ -82,22 +108,26 @@ export class Queue {
       const onComplete = (params: { name: string }) => {
         if (params?.name === 'all') {
           resolve();
+          this.removeEventListener('completed', onComplete);
         }
-
-        // cleanup
-        return this.removeEventListener('completed', onComplete);
       };
+
+      this.addEventListener('completed', onComplete);
 
       if (this.isCompleted() && !this.tasksRunning) {
         resolve();
       } else {
-        this.addEventListener('completed', onComplete);
+        this.removeEventListener('completed', onComplete);
       }
     });
   }
 
   destroy() {
     this.queuedTasks = [];
+    this.listeners = {
+      completed: [],
+      completedSingleFn: [],
+    };
   }
 
   addEventListener<T>(
@@ -122,3 +152,7 @@ export class Queue {
     this.listeners[event]?.forEach((listener) => listener(params));
   }
 }
+
+export const NewBooksQueue = new Queue({
+  concurrency: 1,
+});

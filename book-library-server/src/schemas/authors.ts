@@ -10,6 +10,17 @@ export const getAuthorByIdSchema: FastifySchema = {
   },
 };
 
+export const getAuthorListByPageSchema: FastifySchema = {
+  querystring: {
+    type: 'object',
+    properties: {
+      page: { type: 'number' },
+      limit: { type: 'number' },
+    },
+    required: ['page', 'limit'],
+  },
+};
+
 export const addNewAuthorInfoSchema: FastifySchema = {
   body: {
     type: 'object',

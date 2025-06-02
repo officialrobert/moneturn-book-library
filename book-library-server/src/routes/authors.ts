@@ -2,12 +2,14 @@ import {
   addNewAuthorInfoController,
   deleteAuthorInfoController,
   getAuthorInfoByIdController,
+  getAuthorListByPageController,
   updateAuthorInfoByIdController,
 } from '@/controllers';
 import {
   addNewAuthorInfoSchema,
   deleteAuthorByIdSchema,
   getAuthorByIdSchema,
+  getAuthorListByPageSchema,
   updateAuthorInfoByIdSchema,
 } from '@/schemas';
 import { FastifyInstance } from 'fastify';
@@ -34,5 +36,11 @@ export default async function AuthorRoutes(
     '/:id',
     { schema: updateAuthorInfoByIdSchema },
     updateAuthorInfoByIdController,
+  );
+
+  fastify.get(
+    '/list',
+    { schema: getAuthorListByPageSchema },
+    getAuthorListByPageController,
   );
 }

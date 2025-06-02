@@ -2,6 +2,7 @@ import { IAuthor } from '@/types';
 import { db, authors } from '@/db';
 import { eq } from 'drizzle-orm';
 import { head, isEmpty, map, omit } from 'lodash';
+import { v4 as uuid } from 'uuid';
 
 /**
  * Creates a new author in the database.
@@ -19,10 +20,11 @@ export async function createNewAuthor(
   author: IAuthor,
 ): Promise<IAuthor | null> {
   try {
+    const id = author?.id || uuid();
     const newAuthor = await db
       .insert(authors)
       .values({
-        id: author.id,
+        id,
         name: author.name,
         bio: author.bio,
         createdAt: new Date(author.createdAt),
