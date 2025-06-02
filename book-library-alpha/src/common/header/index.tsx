@@ -5,7 +5,7 @@ import { SettingOutlined } from '@ant-design/icons';
 
 const Header = () => {
   return (
-    <div className="fixed top-0 h-[80px] w-full left-0 right-0 flex justify-between items-center pl-12 pr-12 box-border">
+    <div className="fixed top-0 h-[80px] w-full left-0 right-0 flex justify-between items-center pl-6 pr-6 md:pl-12 md:pr-12 box-border">
       <div className="relative flex justify-end items-center">
         <Link to="/" className="relative">
           <Logo />

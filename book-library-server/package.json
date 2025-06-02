@@ -10,6 +10,7 @@
     "copy:assets:build": "copyfiles -u 1 \"assets/**/*\" dist/assets",
     "db:generate": "npx drizzle-kit generate",
     "db:migrate": "npx drizzle-kit migrate",
+    "db:push": "npx drizzle-kit push",
     "docker:db:down": "docker-compose -f docker-compose.db.yml down",
     "docker:db:up": "docker-compose -f docker-compose.db.yml up -d"
   },
