@@ -51,7 +51,7 @@ const CreateBookDialog = () => {
       });
 
       // simulate delay
-      await delay(500);
+      await delay(1000);
 
       setSuccess(true);
     } catch (err) {
@@ -87,6 +87,13 @@ const CreateBookDialog = () => {
     return null;
   }, [errors, error]);
 
+  const clearValues = () => {
+    setValue('title', '');
+    setValue('shortSummary', '');
+    setValue('imagePreview', '');
+    setValue('authorId', '');
+  };
+
   return (
     <div className="relative w-full box-border">
       <div
@@ -105,9 +112,13 @@ const CreateBookDialog = () => {
               key="1"
               type="primary"
               className="min-w-[60px]"
-              onClick={() => closeDialog()}
+              onClick={() => {
+                setSuccess(false);
+                clearValues();
+                closeDialog();
+              }}
             >
-              Ok
+              Continue
             </Button>,
           ]}
         />
@@ -133,6 +144,7 @@ const CreateBookDialog = () => {
               <Input
                 placeholder="Title"
                 className="relative w-full"
+                allowClear
                 {...field}
               />
             </div>
@@ -150,6 +162,7 @@ const CreateBookDialog = () => {
               <Input
                 placeholder="Short Summary"
                 className="relative w-full"
+                allowClear
                 {...field}
               />
             </div>
@@ -164,6 +177,7 @@ const CreateBookDialog = () => {
               <Input
                 placeholder="https://example.com/image.jpg"
                 className="relative w-full box-border"
+                allowClear
                 {...field}
               />
             </div>
@@ -204,7 +218,7 @@ const CreateBookDialog = () => {
 
         {!isEmpty(errorMessage) && (
           <div className="relative w-full flex justify-center items-center mt-2">
-            <p className="text-red-500">{errorMessage}</p>
+            <p className="text-red-500 text-md">{errorMessage}</p>
           </div>
         )}
 
@@ -215,7 +229,7 @@ const CreateBookDialog = () => {
           )}
         >
           <Button loading={submittingNewBook} type="primary" htmlType="submit">
-            Create
+            Submit
           </Button>
         </div>
       </form>

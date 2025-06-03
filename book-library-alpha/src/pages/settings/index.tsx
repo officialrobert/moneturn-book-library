@@ -7,6 +7,7 @@ import { PlusCircleFilled } from '@ant-design/icons';
 
 import Header from '../../common/header';
 import CreateBookDialog from '../../dialog/create-book';
+import CreateAuthorDialog from '../../dialog/create-author';
 
 const SettingsPage = () => {
   const { showDialog, submittingNewBook, setShowDialog } = useAppStore(
@@ -33,7 +34,11 @@ const SettingsPage = () => {
                 New Book
                 <PlusCircleFilled />
               </Button>
-              <Button type="primary" className="w-full mt-4">
+              <Button
+                type="primary"
+                className="w-full mt-4"
+                onClick={() => setShowDialog(Dialogs.createAuthor)}
+              >
                 New Author <PlusCircleFilled />
               </Button>
             </div>
@@ -42,7 +47,10 @@ const SettingsPage = () => {
       </div>
 
       <Modal
-        open={showDialog === Dialogs.createBook}
+        open={
+          showDialog === Dialogs.createBook ||
+          showDialog === Dialogs.createAuthor
+        }
         closable
         maskClosable={false}
         onCancel={() => {
@@ -56,6 +64,7 @@ const SettingsPage = () => {
         cancelButtonProps={{ style: { display: 'none' } }}
       >
         {showDialog === Dialogs.createBook && <CreateBookDialog />}
+        {showDialog === Dialogs.createAuthor && <CreateAuthorDialog />}
       </Modal>
     </>
   );

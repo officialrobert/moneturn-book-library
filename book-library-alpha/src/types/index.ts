@@ -25,6 +25,11 @@ export interface INewBookSubmitForm {
   authorId: string | null;
 }
 
+export interface INewAuthorSubmitForm {
+  name: string;
+  bio: string;
+}
+
 export interface IBookWithAuthor extends IBook {
   author: IAuthor;
 }

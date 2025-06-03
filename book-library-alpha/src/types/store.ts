@@ -29,8 +29,10 @@ export interface IAppStore {
   theme: SupportedThemes;
   showDialog: Dialogs;
   submittingNewBook: boolean;
+  submittingNewAuthor: boolean;
 
   setTheme: (theme: SupportedThemes) => void;
   setShowDialog: (dialog: Dialogs) => void;
   setSubmittingNewBook: (submitting: boolean) => void;
+  setSubmittingNewAuthor: (submitting: boolean) => void;
 }
