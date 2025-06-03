@@ -25,8 +25,8 @@ export async function insertNewBookController(
     Body: {
       title: string;
       shortSummary: string;
-      imagePreview: string;
       authorId: string;
+      imagePreview?: string;
     };
   }>,
   reply: FastifyReply,
@@ -35,11 +35,9 @@ export async function insertNewBookController(
   const bookId = uuid();
   const today = getNowDateInISOString();
 
-  if (!title || !shortSummary || !authorId || !imagePreview) {
+  if (!title || !shortSummary || !authorId) {
     reply.status(400);
-    throw new Error(
-      "'title', 'shortSummary', 'imagePreview', and 'authorId' are required",
-    );
+    throw new Error("'title', 'shortSummary', and 'authorId' are required");
   }
 
   const newBook = await createNewBook({

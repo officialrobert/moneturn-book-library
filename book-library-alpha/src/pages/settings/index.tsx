@@ -44,6 +44,7 @@ const SettingsPage = () => {
       <Modal
         open={showDialog === Dialogs.createBook}
         closable
+        maskClosable={false}
         onCancel={() => {
           if (submittingNewBook) {
             return;

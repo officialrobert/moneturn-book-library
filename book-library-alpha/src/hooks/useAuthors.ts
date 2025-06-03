@@ -4,7 +4,7 @@ import { useAuthorStore } from '../store';
 import { useShallow } from 'zustand/shallow';
 import { getAuthorListByPageApi } from '../apis';
 
-const useAuthor = () => {
+const useAuthors = () => {
   const { authorListCurrentPage } = useAuthorStore(
     useShallow((state) => ({
       authorListCurrentPage: state.authorListCurrentPage,
@@ -21,4 +21,4 @@ const useAuthor = () => {
   return { authorsList };
 };
 
-export { useAuthor };
+export { useAuthors };
