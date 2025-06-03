@@ -3,21 +3,22 @@ import { useAppStore } from '../../store';
 import { Controller, useForm, type SubmitHandler } from 'react-hook-form';
 import { Button, Input, Select, Result } from 'antd';
 import type { INewBookSubmitForm } from '../../types';
-import { createNewBookInfoApi } from '../../apis';
-import { useMemo, useState } from 'react';
+import { createNewBookInfoApi, updateBookInfoApi } from '../../apis';
+import { useEffect, useMemo, useState } from 'react';
 import { isEmpty } from 'lodash';
-import { useAuthors, useDialog } from '../../hooks';
+import { useAuthors, useBooks, useDialog } from '../../hooks';
 import { cn } from '../../lib';
 import { delay, grabApiErrorMessage } from '../../helpers';
 import type { AxiosError } from 'axios';
 
-const CreateBookDialog = () => {
-  const { submittingNewBook, setSubmittingNewBook } = useAppStore(
-    useShallow((state) => ({
-      submittingNewBook: state.submittingNewBook,
-      setSubmittingNewBook: state.setSubmittingNewBook,
-    })),
-  );
+const UpdateOrCreateBookDialog = () => {
+  const { isUpdatingOrSubmittingBook, setIsUpdatingOrSubmittingBook } =
+    useAppStore(
+      useShallow((state) => ({
+        isUpdatingOrSubmittingBook: state.isUpdatingOrSubmittingBook,
+        setIsUpdatingOrSubmittingBook: state.setIsUpdatingOrSubmittingBook,
+      })),
+    );
 
   const { closeDialog } = useDialog();
 
@@ -27,6 +28,8 @@ const CreateBookDialog = () => {
 
   const { authorsList } = useAuthors();
 
+  const { editBookId, book, isFetchingBookInfo } = useBooks();
+
   const {
     handleSubmit,
     control,
@@ -34,21 +37,43 @@ const CreateBookDialog = () => {
     setValue,
   } = useForm<INewBookSubmitForm>();
 
+  const isUpdatingBook = useMemo(() => !!editBookId, [editBookId]);
+
+  const isLoadingBookInfoToUpdate = useMemo(
+    () =>
+      isUpdatingBook &&
+      isFetchingBookInfo &&
+      (!book || book?.id !== editBookId),
+    [isFetchingBookInfo, book, editBookId, isUpdatingBook],
+  );
+
   const handleCreateNewBook: SubmitHandler<INewBookSubmitForm> = async (
     data,
   ) => {
-    if (!data || submittingNewBook) {
+    if (!data || isUpdatingOrSubmittingBook || isLoadingBookInfoToUpdate) {
       return;
     }
-    setSubmittingNewBook(true);
+
+    setIsUpdatingOrSubmittingBook(true);
 
     try {
-      await createNewBookInfoApi({
+      const props = {
         title: data.title,
         shortSummary: data.shortSummary,
         imagePreview: data.imagePreview || '',
         authorId: data.authorId || '',
-      });
+      };
+
+      if (isUpdatingBook) {
+        await updateBookInfoApi({
+          id: editBookId,
+          ...props,
+        });
+      } else {
+        await createNewBookInfoApi({
+          ...props,
+        });
+      }
 
       // simulate delay
       await delay(1000);
@@ -60,7 +85,7 @@ const CreateBookDialog = () => {
       setValue('shortSummary', '');
       setValue('imagePreview', '');
     } finally {
-      setSubmittingNewBook(false);
+      setIsUpdatingOrSubmittingBook(false);
     }
   };
 
@@ -93,6 +118,18 @@ const CreateBookDialog = () => {
     setValue('imagePreview', '');
     setValue('authorId', '');
   };
+
+  /**
+   * Initialize form values when book info is fetched
+   */
+  useEffect(() => {
+    if (!isEmpty(editBookId) && book?.id === editBookId) {
+      setValue('title', book.title);
+      setValue('shortSummary', book.shortSummary);
+      setValue('imagePreview', book.imagePreview);
+      setValue('authorId', book.authorId);
+    }
+  }, [book, editBookId, setValue]);
 
   return (
     <div className="relative w-full box-border">
@@ -216,7 +253,7 @@ const CreateBookDialog = () => {
           </div>
         </div>
 
-        {!isEmpty(errorMessage) && (
+        {!isEmpty(errorMessage) && !isLoadingBookInfoToUpdate && (
           <div className="relative w-full flex justify-center items-center mt-2">
             <p className="text-red-500 text-md">{errorMessage}</p>
           </div>
@@ -224,11 +261,16 @@ const CreateBookDialog = () => {
 
         <div
           className={cn(
+            isLoadingBookInfoToUpdate ? 'hidden w-0 overflow-hidden' : '',
             'relative w-full flex justify-end items-center',
             !isEmpty(errorMessage) ? 'mt-2' : 'mt-4',
           )}
         >
-          <Button loading={submittingNewBook} type="primary" htmlType="submit">
+          <Button
+            loading={isUpdatingOrSubmittingBook}
+            type="primary"
+            htmlType="submit"
+          >
             Submit
           </Button>
         </div>
@@ -237,4 +279,4 @@ const CreateBookDialog = () => {
   );
 };
 
-export default CreateBookDialog;
+export default UpdateOrCreateBookDialog;

@@ -29,13 +29,13 @@ export const useAuthorStore = create<IAuthorStore>((set) => ({
 export const useAppStore = create<IAppStore>((set) => ({
   theme: SupportedThemes.Light,
   showDialog: Dialogs.none,
-  submittingNewBook: false,
-  submittingNewAuthor: false,
+  isUpdatingOrSubmittingBook: false,
+  isUpdatingOrSubmittingAuthor: false,
 
   setTheme: (theme: SupportedThemes) => set({ theme }),
   setShowDialog: (showDialog: Dialogs) => set({ showDialog }),
-  setSubmittingNewBook: (submittingNewBook: boolean) =>
-    set({ submittingNewBook }),
-  setSubmittingNewAuthor: (submittingNewAuthor: boolean) =>
-    set({ submittingNewAuthor }),
+  setIsUpdatingOrSubmittingBook: (isUpdatingOrSubmittingBook: boolean) =>
+    set({ isUpdatingOrSubmittingBook }),
+  setIsUpdatingOrSubmittingAuthor: (isUpdatingOrSubmittingAuthor: boolean) =>
+    set({ isUpdatingOrSubmittingAuthor }),
 }));

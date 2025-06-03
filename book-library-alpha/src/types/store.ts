@@ -20,7 +20,7 @@ export enum SupportedThemes {
 }
 
 export enum Dialogs {
-  'createBook' = 'createBook',
+  'updateOrCreateBook' = 'updateOrCreateBook',
   'createAuthor' = 'createAuthor',
   'none' = 'none',
 }
@@ -28,11 +28,11 @@ export enum Dialogs {
 export interface IAppStore {
   theme: SupportedThemes;
   showDialog: Dialogs;
-  submittingNewBook: boolean;
-  submittingNewAuthor: boolean;
+  isUpdatingOrSubmittingBook: boolean;
+  isUpdatingOrSubmittingAuthor: boolean;
 
   setTheme: (theme: SupportedThemes) => void;
   setShowDialog: (dialog: Dialogs) => void;
-  setSubmittingNewBook: (submitting: boolean) => void;
-  setSubmittingNewAuthor: (submitting: boolean) => void;
+  setIsUpdatingOrSubmittingBook: (submitting: boolean) => void;
+  setIsUpdatingOrSubmittingAuthor: (submitting: boolean) => void;
 }

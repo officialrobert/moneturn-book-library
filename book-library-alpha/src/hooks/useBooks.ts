@@ -3,7 +3,7 @@ import { useBooksStore } from '../store';
 import { useShallow } from 'zustand/shallow';
 import { useMemo } from 'react';
 import { filter } from 'lodash';
-import { useParams } from 'react-router';
+import { useParams, useSearchParams } from 'react-router';
 import { getBookInfoByIdApi, getBooksListByPageApi } from '../apis';
 
 const useBooks = () => {
@@ -13,7 +13,16 @@ const useBooks = () => {
     })),
   );
 
-  const { id } = useParams();
+  const urlParams = useParams();
+
+  const [searchParams] = useSearchParams();
+
+  const editBookId = useMemo(
+    () => searchParams?.get('edit') || '',
+    [searchParams],
+  );
+
+  const bookId = useMemo(() => urlParams?.id || '', [urlParams]);
 
   const {
     data: booksListMetadata,
@@ -29,8 +38,8 @@ const useBooks = () => {
     isLoading: isFetchingBookInfo,
     error: errorFetchingBookInfo,
   } = useQuery({
-    queryKey: ['bookInfo', id],
-    queryFn: () => getBookInfoByIdApi(id || ''),
+    queryKey: ['bookInfo', bookId, editBookId],
+    queryFn: () => getBookInfoByIdApi(editBookId ? editBookId : bookId),
   });
 
   const books = useMemo(
@@ -43,6 +52,7 @@ const useBooks = () => {
     isFetchingBooksList,
     errorFetchingBooksList,
     book,
+    editBookId,
     isFetchingBookInfo,
     errorFetchingBookInfo,
   };

@@ -6,14 +6,14 @@ import { Dialogs } from '../../types';
 import { PlusCircleFilled } from '@ant-design/icons';
 
 import Header from '../../common/header';
-import CreateBookDialog from '../../dialog/create-book';
+import UpdateOrCreateBookDialog from '../../dialog/update-create-book';
 import CreateAuthorDialog from '../../dialog/create-author';
 
 const SettingsPage = () => {
-  const { showDialog, submittingNewBook, setShowDialog } = useAppStore(
+  const { showDialog, isUpdatingOrSubmittingBook, setShowDialog } = useAppStore(
     useShallow((state) => ({
       showDialog: state.showDialog,
-      submittingNewBook: state.submittingNewBook,
+      isUpdatingOrSubmittingBook: state.isUpdatingOrSubmittingBook,
       setShowDialog: state.setShowDialog,
     })),
   );
@@ -29,7 +29,7 @@ const SettingsPage = () => {
               <Button
                 type="primary"
                 className="w-full flex"
-                onClick={() => setShowDialog(Dialogs.createBook)}
+                onClick={() => setShowDialog(Dialogs.updateOrCreateBook)}
               >
                 New Book
                 <PlusCircleFilled />
@@ -48,13 +48,13 @@ const SettingsPage = () => {
 
       <Modal
         open={
-          showDialog === Dialogs.createBook ||
+          showDialog === Dialogs.updateOrCreateBook ||
           showDialog === Dialogs.createAuthor
         }
         closable
         maskClosable={false}
         onCancel={() => {
-          if (submittingNewBook) {
+          if (isUpdatingOrSubmittingBook) {
             return;
           }
 
@@ -63,7 +63,9 @@ const SettingsPage = () => {
         okButtonProps={{ style: { display: 'none' } }}
         cancelButtonProps={{ style: { display: 'none' } }}
       >
-        {showDialog === Dialogs.createBook && <CreateBookDialog />}
+        {showDialog === Dialogs.updateOrCreateBook && (
+          <UpdateOrCreateBookDialog />
+        )}
         {showDialog === Dialogs.createAuthor && <CreateAuthorDialog />}
       </Modal>
     </>

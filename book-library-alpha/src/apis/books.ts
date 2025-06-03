@@ -110,3 +110,38 @@ export async function getBookInfoByIdApi(
 
   return res?.data?.book;
 }
+
+/**
+ * Update book info by id.
+ *
+ * @param {Object} params - The parameters for updating a book.
+ * @param {string} params.id - The book id.
+ * @param {string} params.title - The title of the book.
+ * @param {string} params.shortSummary - The short summary of the book.
+ * @param {string} params.imagePreview - The image preview of the book.
+ * @param {string} params.authorId - The author ID of the book.
+ * @returns {Promise<IBookWithAuthor | undefined>} The updated book info.
+ */
+export async function updateBookInfoApi(params: {
+  id: string;
+  title?: string;
+  shortSummary?: string;
+  imagePreview?: string;
+  authorId?: string;
+}): Promise<IBookWithAuthor | undefined> {
+  const { id, title, shortSummary, imagePreview, authorId } = params;
+
+  const url = getServerApiBaseUrl();
+
+  const res = await axios.patch<{ book: IBookWithAuthor }>(
+    `${url}/books/${id}`,
+    {
+      title,
+      shortSummary,
+      imagePreview,
+      authorId,
+    },
+  );
+
+  return res?.data?.book;
+}
