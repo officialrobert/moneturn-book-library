@@ -171,7 +171,7 @@ export async function updateBookInfoByIdController(
     };
   }>,
   reply: FastifyReply,
-): Promise<{ book: IBook } | null> {
+): Promise<{ book: IBookWithAuthor } | null> {
   const { id } = request.params;
   const { title, shortSummary, imagePreview, authorId } = request.body;
 
@@ -193,9 +193,14 @@ export async function updateBookInfoByIdController(
     true,
   );
 
+  const authorInfo = await getAuthorById(updatedBook.authorId);
+
   reply.status(200);
   return {
-    book: updatedBook,
+    book: {
+      ...updatedBook,
+      author: authorInfo,
+    },
   };
 }
 
