@@ -24,7 +24,18 @@ GET /v1/books/search?search={searchQuery}
 ### Update book info by id
 
 ```http
-PUT /v1/books/{id}
+PATCH /v1/books/{id}
+```
+
+Supported properties:
+
+```json
+{
+  "title": "string", // optional
+  "shortSummary": "string", // optional
+  "imagePreview": "string", // optional
+  "authorId": "string" // optional, from authors list
+}
 ```
 
 ### Delete book info by id
@@ -37,6 +48,17 @@ DELETE /v1/books/{id}
 
 ```http
 POST /v1/books
+```
+
+Supported properties:
+
+```json
+{
+  "title": "string", // required
+  "shortSummary": "string", // required
+  "imagePreview": "string", // optional
+  "authorId": "string" // required, from authors list
+}
 ```
 
 
@@ -66,7 +88,7 @@ POST /v1/authors
 ### Update author info by id
 
 ```http
-PUT /v1/authors/{id}
+PATCH /v1/authors/{id}
 ```
 
 ### Delete author info by id
