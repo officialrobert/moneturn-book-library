@@ -19,8 +19,6 @@ const BookCard = (props: { book: IBookWithAuthor }) => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const handleEdit = () => {
-    console.log('handleEdit()');
-
     if (!book?.id) {
       return;
     }
