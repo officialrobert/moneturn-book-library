@@ -31,7 +31,11 @@ export function build() {
   });
 
   app.register(cors, {
-    origin: true,
+    origin: (_origin, cb) => {
+      return cb(null, true);
+    },
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    credentials: true,
   });
 
   app.register(ApiRoutes, { prefix: '/v1' });

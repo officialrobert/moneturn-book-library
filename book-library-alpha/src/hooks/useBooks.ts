@@ -28,6 +28,7 @@ const useBooks = () => {
     data: booksListMetadata,
     isLoading: isFetchingBooksList,
     error: errorFetchingBooksList,
+    refetch: fetchBooksList,
   } = useQuery({
     queryKey: ['booksList', booksListCurrentPage],
     queryFn: () => getBooksListByPageApi({ page: booksListCurrentPage }),
@@ -55,6 +56,7 @@ const useBooks = () => {
     editBookId,
     isFetchingBookInfo,
     errorFetchingBookInfo,
+    fetchBooksList,
   };
 };
 

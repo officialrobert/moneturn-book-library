@@ -28,7 +28,7 @@ const UpdateOrCreateBookDialog = () => {
 
   const { authorsList } = useAuthors();
 
-  const { editBookId, book, isFetchingBookInfo } = useBooks();
+  const { editBookId, book, isFetchingBookInfo, fetchBooksList } = useBooks();
 
   const {
     handleSubmit,
@@ -77,13 +77,17 @@ const UpdateOrCreateBookDialog = () => {
 
       // simulate delay
       await delay(1000);
+      await fetchBooksList();
 
       setSuccess(true);
     } catch (err) {
       setError(grabApiErrorMessage(err as Error | AxiosError));
-      setValue('title', '');
-      setValue('shortSummary', '');
-      setValue('imagePreview', '');
+
+      if (!isUpdatingBook) {
+        setValue('title', '');
+        setValue('shortSummary', '');
+        setValue('imagePreview', '');
+      }
     } finally {
       setIsUpdatingOrSubmittingBook(false);
     }
@@ -200,6 +204,7 @@ const UpdateOrCreateBookDialog = () => {
                 placeholder="Short Summary"
                 className="relative w-full"
                 allowClear
+                maxLength={250}
                 {...field}
               />
             </div>

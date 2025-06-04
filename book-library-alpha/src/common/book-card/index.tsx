@@ -1,13 +1,36 @@
 import { isEmpty } from 'lodash';
-import type { IBookWithAuthor } from '../../types';
+import { Dialogs, type IBookWithAuthor } from '../../types';
 import { Image, Card, Button } from 'antd';
-import { Link } from 'react-router';
-import { EditOutlined } from '@ant-design/icons';
+import { Link, useSearchParams } from 'react-router';
+import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
+import { useAppStore } from '../../store';
+import { useShallow } from 'zustand/shallow';
 
 const { Meta } = Card;
 
 const BookCard = (props: { book: IBookWithAuthor }) => {
   const { book } = props;
+  const { setShowDialog } = useAppStore(
+    useShallow((state) => ({
+      setShowDialog: state.setShowDialog,
+    })),
+  );
+
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const handleEdit = () => {
+    console.log('handleEdit()');
+
+    if (!book?.id) {
+      return;
+    }
+
+    searchParams.set('edit', book?.id);
+    setSearchParams(searchParams);
+    setShowDialog(Dialogs.updateOrCreateBook);
+  };
+
+  const handleDelete = () => {};
 
   return (
     <div className="relative w-[240px] box-border flex flex-col justify-start items-center">
@@ -44,8 +67,21 @@ const BookCard = (props: { book: IBookWithAuthor }) => {
           </>
         }
         actions={[
-          <Button key="edit" type="primary" className="relative flex">
+          <Button
+            key="edit"
+            type="text"
+            className="relative flex"
+            onClick={() => handleEdit()}
+          >
             <EditOutlined />
+          </Button>,
+          <Button
+            key="delete"
+            type="text"
+            className="relative flex"
+            onClick={() => handleDelete()}
+          >
+            <DeleteOutlined />
           </Button>,
         ]}
       >

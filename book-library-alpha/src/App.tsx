@@ -5,6 +5,7 @@ import { useTheme } from './hooks/useTheme';
 import DefaultPage from './pages/default';
 import SettingsPage from './pages/settings';
 import Book from './pages/book';
+import Providers from './providers';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
@@ -21,9 +22,30 @@ function App() {
         }}
       >
         <Routes>
-          <Route path="/" element={<DefaultPage />} />
-          <Route path="/settings" element={<SettingsPage />} />
-          <Route path="/book/:id" element={<Book />} />
+          <Route
+            path="/"
+            element={
+              <Providers>
+                <DefaultPage />
+              </Providers>
+            }
+          />
+          <Route
+            path="/settings"
+            element={
+              <Providers>
+                <SettingsPage />
+              </Providers>
+            }
+          />
+          <Route
+            path="/book/:id"
+            element={
+              <Providers>
+                <Book />
+              </Providers>
+            }
+          />
         </Routes>
       </ConfigProvider>
     </QueryClientProvider>
