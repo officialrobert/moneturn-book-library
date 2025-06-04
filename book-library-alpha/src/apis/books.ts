@@ -145,3 +145,25 @@ export async function updateBookInfoApi(params: {
 
   return res?.data?.book;
 }
+
+/**
+ * Delete book info by id.
+ *
+ * @param {string} id - The book id.
+ * @returns {Promise<{ message: string; book?: IBook }>} The deleted book info.
+ */
+export async function deleteBookByIdApi(
+  id: string,
+): Promise<{ message: string; book?: IBook }> {
+  if (!id) {
+    throw new Error('Book id is required');
+  }
+
+  const url = getServerApiBaseUrl();
+
+  const res = await axios.delete<{ message: string; book?: IBook }>(
+    `${url}/books/${id}`,
+  );
+
+  return res?.data;
+}

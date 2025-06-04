@@ -28,7 +28,15 @@ const BookCard = (props: { book: IBookWithAuthor }) => {
     setShowDialog(Dialogs.updateOrCreateBook);
   };
 
-  const handleDelete = () => {};
+  const handleDelete = () => {
+    if (!book?.id) {
+      return;
+    }
+
+    searchParams.set('delete', book?.id);
+    setSearchParams(searchParams);
+    setShowDialog(Dialogs.deleteBook);
+  };
 
   return (
     <div className="relative w-[240px] box-border flex flex-col justify-start items-center">
