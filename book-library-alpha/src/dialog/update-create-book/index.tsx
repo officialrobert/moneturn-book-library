@@ -146,8 +146,16 @@ const UpdateOrCreateBookDialog = () => {
       >
         <Result
           status="success"
-          title="Book created successfully"
-          subTitle="It may take a few seconds for the book to appear in the list."
+          title={
+            isUpdatingBook
+              ? 'Book updated successfully'
+              : 'Book created successfully'
+          }
+          subTitle={
+            isUpdatingBook
+              ? 'It may take a few seconds for the updates to propagate.'
+              : 'It may take a few seconds for the book to appear in the list.'
+          }
           extra={[
             <Button
               key="1"
