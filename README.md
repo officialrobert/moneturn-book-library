@@ -2,8 +2,8 @@
 
 This project demonstrates how to build a book library API using `Fastify`, `TypeScript`, `Drizzle ORM` paired with `PostgreSQL` database.
 
+![ScreenRec_2025-06-05 05-04-08](https://github.com/user-attachments/assets/1c85f8ea-96ae-41ac-9610-4a140b178911)
 
-![ScreenRec_2025-06-02 07-14-35](https://github.com/user-attachments/assets/49dd9b18-e1a4-4312-a4fb-c1d3fbfc6159)
 
 
 ## Prerequisites
