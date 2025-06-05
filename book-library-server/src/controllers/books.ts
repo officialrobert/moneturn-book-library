@@ -8,7 +8,9 @@ import {
   deleteBookById,
   getAuthorById,
   getBookInfoById,
+  getBooksListByPage,
   getNowDateInISOString,
+  searchBooksByMatchString,
   updateBookPropsById,
 } from '@/helpers';
 import { v4 as uuid } from 'uuid';
@@ -107,47 +109,13 @@ export async function getBooksByPageController(
   reply: FastifyReply,
 ): Promise<{ books: IBookWithAuthor[]; pagination: IPagination }> {
   const { page, limit } = request.query;
-  const offset = (page - 1) * limit;
-  const currentDate = getNowDateInISOString();
 
-  const [booksResult, totalCount] = await Promise.all([
-    db
-      .select({
-        id: books.id,
-      })
-      .from(books)
-      .where(or(isNull(books.deletedAt), gt(books.deletedAt, currentDate)))
-      .orderBy(desc(books.createdAt))
-      .limit(limit)
-      .offset(offset),
-    db
-      .select({ count: sql`count(*)` })
-      .from(books)
-      .where(or(isNull(books.deletedAt), gt(books.deletedAt, currentDate))),
-  ]);
-
-  const booksEnriched = await Promise.all(
-    booksResult.map(async (book) => {
-      const bookInfo = await getBookInfoById(book.id, true);
-      const authorInfo = await getAuthorById(bookInfo.authorId);
-
-      return {
-        ...bookInfo,
-        author: authorInfo,
-      };
-    }),
-  );
-  const pagination: IPagination = {
-    currentPage: page,
-    totalPages: Math.ceil(Number(head(totalCount)?.count) / limit),
-    totalItems: Number(head(totalCount)?.count),
-    itemsPerPage: limit,
-  };
+  const { pagination, books } = await getBooksListByPage({ page, limit });
 
   reply.status(200);
   return {
     pagination,
-    books: booksEnriched,
+    books,
   };
 }
 
@@ -255,63 +223,16 @@ export async function searchBooksMatchController(
   reply: FastifyReply,
 ): Promise<{ books: IBookWithAuthor[]; pagination: IPagination }> {
   const { search, page = 1, limit } = request.query;
-  const currentDate = getNowDateInISOString();
-  const normalizedSearch = toLower(trim(search));
-  const targetLimit = isNumber(limit) && limit > 10 ? limit : 10;
-  const [booksList, totalCount] = await Promise.all([
-    db
-      .select({
-        id: books.id,
-      })
-      .from(books)
-      .where(
-        and(
-          or(
-            sql`LOWER(${books.title}) ILIKE ${`%${normalizedSearch}%`}`,
-            sql`LOWER(${books.shortSummary}) ILIKE ${`%${normalizedSearch}%`}`,
-          ),
-          or(isNull(books.deletedAt), gt(books.deletedAt, currentDate)),
-        ),
-      )
-      .orderBy(desc(books.createdAt))
-      .limit(targetLimit)
-      .offset((page - 1) * targetLimit),
-    db
-      .select({ count: sql`count(*)` })
-      .from(books)
-      .where(
-        and(
-          or(
-            sql`LOWER(${books.title}) ILIKE ${`%${normalizedSearch}%`}`,
-            sql`LOWER(${books.shortSummary}) ILIKE ${`%${normalizedSearch}%`}`,
-          ),
-          or(isNull(books.deletedAt), gt(books.deletedAt, currentDate)),
-        ),
-      ),
-  ]);
 
-  const booksEnriched = await Promise.all(
-    booksList.map(async (book) => {
-      const bookInfo = await getBookInfoById(book.id, true);
-      const authorInfo = await getAuthorById(bookInfo.authorId);
-
-      return {
-        ...bookInfo,
-        author: authorInfo,
-      };
-    }),
-  );
-  const totalPages = Math.ceil(Number(head(totalCount)?.count) / targetLimit);
-  const pagination: IPagination = {
-    currentPage: page,
-    totalPages: isNumber(totalPages) && totalPages > 0 ? totalPages : 1,
-    totalItems: Number(head(totalCount)?.count),
-    itemsPerPage: targetLimit,
-  };
+  const { books, pagination } = await searchBooksByMatchString({
+    search,
+    page,
+    limit,
+  });
 
   reply.status(200);
   return {
-    books: booksEnriched,
+    books,
     pagination,
   };
 }

@@ -12,12 +12,13 @@ import { AxiosError } from 'axios';
 import { isEmpty } from 'lodash';
 
 const CreateAuthorDialog = () => {
-  const { submittingNewAuthor, setSubmittingNewAuthor } = useAppStore(
-    useShallow((state) => ({
-      submittingNewAuthor: state.submittingNewAuthor,
-      setSubmittingNewAuthor: state.setSubmittingNewAuthor,
-    })),
-  );
+  const { isUpdatingOrSubmittingAuthor, setIsUpdatingOrSubmittingAuthor } =
+    useAppStore(
+      useShallow((state) => ({
+        isUpdatingOrSubmittingAuthor: state.isUpdatingOrSubmittingAuthor,
+        setIsUpdatingOrSubmittingAuthor: state.setIsUpdatingOrSubmittingAuthor,
+      })),
+    );
 
   const { closeDialog } = useDialog();
 
@@ -35,10 +36,11 @@ const CreateAuthorDialog = () => {
   const handleCreateNewAuthor: SubmitHandler<INewAuthorSubmitForm> = async (
     data,
   ) => {
-    if (!data || submittingNewAuthor) {
+    if (!data || isUpdatingOrSubmittingAuthor) {
       return;
     }
-    setSubmittingNewAuthor(true);
+
+    setIsUpdatingOrSubmittingAuthor(true);
 
     try {
       await createNewAuthorInfoApi({
@@ -55,7 +57,7 @@ const CreateAuthorDialog = () => {
       setValue('name', '');
       setValue('bio', '');
     } finally {
-      setSubmittingNewAuthor(false);
+      setIsUpdatingOrSubmittingAuthor(false);
     }
   };
 
@@ -170,7 +172,7 @@ const CreateAuthorDialog = () => {
           )}
         >
           <Button
-            loading={submittingNewAuthor}
+            loading={isUpdatingOrSubmittingAuthor}
             type="primary"
             htmlType="submit"
           >

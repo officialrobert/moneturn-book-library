@@ -1,10 +1,12 @@
 import { db, books } from '@/db';
-import { head, isEmpty, map, omit } from 'lodash';
-import { IBook } from '@/types';
-import { eq } from 'drizzle-orm';
+import { head, isEmpty, isNumber, map, omit, toLower, trim } from 'lodash';
+import { IBook, IBookWithAuthor, IPagination } from '@/types';
+import { eq, and, desc, sql, isNull, or, gt } from 'drizzle-orm';
 import { formatBookImagePreviewProperty } from '../books';
 import { NewBooksQueue } from '@/lib';
 import { v4 as uuid } from 'uuid';
+import { getAuthorById } from './authors';
+import { getNowDateInISOString } from '../date';
 
 /**
  * Creates a new book in the database.
@@ -168,4 +170,135 @@ export async function deleteBookById(
 
     return null;
   }
+}
+
+/**
+ * Get books list by page.
+ *
+ * @param {Object} params
+ * @param {number} params.page - The page number.
+ * @param {number} params.limit - The number of items per page.
+ * @returns {Promise<{ books: IBookWithAuthor[]; pagination: IPagination }>} The books list and pagination information.
+ */
+export async function getBooksListByPage(params: {
+  page: number;
+  limit: number;
+}): Promise<{ books: IBookWithAuthor[]; pagination: IPagination }> {
+  const { page = 1, limit = 10 } = params;
+  const offset = (page - 1) * limit;
+  const currentDate = getNowDateInISOString();
+  const [booksResult, totalCount] = await Promise.all([
+    db
+      .select({
+        id: books.id,
+      })
+      .from(books)
+      .where(or(isNull(books.deletedAt), gt(books.deletedAt, currentDate)))
+      .orderBy(desc(books.createdAt))
+      .limit(limit)
+      .offset(offset),
+    db
+      .select({ count: sql`count(*)` })
+      .from(books)
+      .where(or(isNull(books.deletedAt), gt(books.deletedAt, currentDate))),
+  ]);
+
+  const booksEnriched = await Promise.all(
+    booksResult.map(async (book) => {
+      const bookInfo = await getBookInfoById(book.id, true);
+      const authorInfo = await getAuthorById(bookInfo.authorId);
+
+      return {
+        ...bookInfo,
+        author: authorInfo,
+      };
+    }),
+  );
+
+  const pagination: IPagination = {
+    currentPage: page,
+    totalPages: Math.ceil(Number(head(totalCount)?.count) / limit),
+    totalItems: Number(head(totalCount)?.count),
+    itemsPerPage: limit,
+  };
+
+  return {
+    pagination,
+    books: booksEnriched,
+  };
+}
+
+/**
+ * Search books by match string.
+ *
+ * @param {Object} params
+ * @param {string} params.search - The search string.
+ * @param {number} params.page - The page number.
+ * @param {number} params.limit - The number of items per page. Default is 10.
+ * @returns {Promise<{ books: IBookWithAuthor[]; pagination: IPagination }>} The books list and pagination information.
+ */
+export async function searchBooksByMatchString(params: {
+  search: string;
+  page?: number;
+  limit?: number;
+}): Promise<{ books: IBookWithAuthor[]; pagination: IPagination }> {
+  const { search, page = 1, limit } = params;
+  const normalizedSearch = toLower(trim(search));
+  const currentDate = getNowDateInISOString();
+  const targetLimit = isNumber(limit) && limit > 10 ? limit : 10;
+  const [booksList, totalCount] = await Promise.all([
+    db
+      .select({
+        id: books.id,
+      })
+      .from(books)
+      .where(
+        and(
+          or(
+            sql`LOWER(${books.title}) ILIKE ${`%${normalizedSearch}%`}`,
+            sql`LOWER(${books.shortSummary}) ILIKE ${`%${normalizedSearch}%`}`,
+          ),
+          or(isNull(books.deletedAt), gt(books.deletedAt, currentDate)),
+        ),
+      )
+      .orderBy(desc(books.createdAt))
+      .limit(targetLimit)
+      .offset((page - 1) * targetLimit),
+    db
+      .select({ count: sql`count(*)` })
+      .from(books)
+      .where(
+        and(
+          or(
+            sql`LOWER(${books.title}) ILIKE ${`%${normalizedSearch}%`}`,
+            sql`LOWER(${books.shortSummary}) ILIKE ${`%${normalizedSearch}%`}`,
+          ),
+          or(isNull(books.deletedAt), gt(books.deletedAt, currentDate)),
+        ),
+      ),
+  ]);
+
+  const booksEnriched = await Promise.all(
+    booksList.map(async (book) => {
+      const bookInfo = await getBookInfoById(book.id, true);
+      const authorInfo = await getAuthorById(bookInfo.authorId);
+
+      return {
+        ...bookInfo,
+        author: authorInfo,
+      };
+    }),
+  );
+  const totalPages = Math.ceil(Number(head(totalCount)?.count) / targetLimit);
+  const pagination: IPagination = {
+    currentPage: page,
+    totalPages: isNumber(totalPages) && totalPages > 0 ? totalPages : 1,
+    totalItems: Number(head(totalCount)?.count),
+    itemsPerPage: targetLimit,
+  };
+
+  return {
+    pagination,
+    books: booksEnriched,
+  };
 }
