@@ -1,5 +1,5 @@
-import { getServerApiBaseUrl } from '../helpers';
-import type { IBook, IBookWithAuthor, IPagination } from '../types';
+import { getServerApiBaseUrl } from '@/helpers';
+import type { IBook, IBookWithAuthor, IPagination } from '@/types';
 import axios from 'axios';
 
 /**

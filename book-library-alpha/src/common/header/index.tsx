@@ -1,6 +1,7 @@
-import Logo from '../logo';
 import { Link } from 'react-router';
 import { SettingOutlined } from '@ant-design/icons';
+
+import Logo from '@/common/logo';
 
 const Header = () => {
   return (

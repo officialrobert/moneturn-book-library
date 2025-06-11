@@ -5,7 +5,7 @@ import {
   SupportedThemes,
   Dialogs,
   type IAuthorStore,
-} from '../types';
+} from '@/types';
 
 export const useBooksStore = create<IBooksStore>((set) => ({
   booksListCurrentPage: 1,

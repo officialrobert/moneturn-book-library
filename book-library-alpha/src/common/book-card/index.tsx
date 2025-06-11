@@ -1,10 +1,10 @@
 import { isEmpty } from 'lodash';
-import { Dialogs, type IBookWithAuthor } from '../../types';
+import { useShallow } from 'zustand/shallow';
 import { Image, Card, Button } from 'antd';
 import { Link, useSearchParams } from 'react-router';
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
-import { useAppStore } from '../../store';
-import { useShallow } from 'zustand/shallow';
+import { Dialogs, type IBookWithAuthor } from '@/types';
+import { useAppStore } from '@/store';
 
 const { Meta } = Card;
 

@@ -1,8 +1,8 @@
-import { useShallow } from 'zustand/shallow';
-import { useAppStore } from '../store';
 import { useEffect, useMemo } from 'react';
-import { SupportedThemes } from '../types';
+import { useShallow } from 'zustand/shallow';
 import { useSearchParams } from 'react-router';
+import { useAppStore } from '@/store';
+import { SupportedThemes } from '@/types';
 
 const useTheme = () => {
   const { theme, setTheme } = useAppStore(

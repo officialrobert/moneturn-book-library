@@ -1,12 +1,12 @@
 import { Modal } from 'antd';
 import { useMemo, type ReactNode } from 'react';
-import { Dialogs } from '../types';
-import { useAppStore } from '../store';
+import { Dialogs } from '@/types';
+import { useAppStore } from '@/store';
 import { useShallow } from 'zustand/shallow';
 
-import UpdateOrCreateBookDialog from '../dialog/update-create-book';
-import CreateAuthorDialog from '../dialog/create-author';
-import DeleteBookDialog from '../dialog/delete-book';
+import UpdateOrCreateBookDialog from '@/dialog/update-create-book';
+import CreateAuthorDialog from '@/dialog/create-author';
+import DeleteBookDialog from '@/dialog/delete-book';
 
 const DialogProvider = ({ children }: { children: ReactNode }) => {
   const {

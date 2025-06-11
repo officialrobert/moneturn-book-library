@@ -1,15 +1,15 @@
 import { useMemo, useState } from 'react';
-import { useDialog } from '../../hooks';
-import { useAppStore } from '../../store';
 import { useShallow } from 'zustand/shallow';
 import { Controller, useForm, type SubmitHandler } from 'react-hook-form';
-import { type INewAuthorSubmitForm } from '../../types';
-import { cn } from '../../lib';
-import { Button, Input, Result } from 'antd';
-import { grabApiErrorMessage, delay } from '../../helpers';
-import { createNewAuthorInfoApi } from '../../apis';
 import { AxiosError } from 'axios';
 import { isEmpty } from 'lodash';
+import { useDialog } from '@/hooks';
+import { useAppStore } from '@/store';
+import { type INewAuthorSubmitForm } from '@/types';
+import { cn } from '@/lib';
+import { Button, Input, Result } from 'antd';
+import { grabApiErrorMessage, delay } from '@/helpers';
+import { createNewAuthorInfoApi } from '@/apis';
 
 const CreateAuthorDialog = () => {
   const { isUpdatingOrSubmittingAuthor, setIsUpdatingOrSubmittingAuthor } =

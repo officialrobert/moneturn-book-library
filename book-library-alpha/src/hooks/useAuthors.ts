@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
-import { useAuthorStore } from '../store';
 import { useShallow } from 'zustand/shallow';
-import { getAuthorListByPageApi } from '../apis';
+import { useAuthorStore } from '@/store';
+import { getAuthorListByPageApi } from '@/apis';
 
 const useAuthors = () => {
   const { authorListCurrentPage } = useAuthorStore(

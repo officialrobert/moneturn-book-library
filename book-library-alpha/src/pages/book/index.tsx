@@ -1,17 +1,15 @@
-import Header from '../../common/header';
-
 import { useEffect } from 'react';
-import { useBooks } from '../../hooks';
+import { useBooks, useScroll } from '@/hooks';
+
+import Header from '@/common/header';
 
 const Book = () => {
   const { book } = useBooks();
+  const { scrollUp } = useScroll();
 
   useEffect(() => {
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth',
-    });
-  }, []);
+    scrollUp();
+  }, [scrollUp]);
 
   return (
     <div className="relative w-full box-border min-h-[100vh] mb-[100px]">

@@ -1,4 +1,4 @@
-import { cn } from '../../lib';
+import { cn } from '@/lib';
 
 const Logo = (props: { className?: string }) => {
   const { className } = props;

@@ -1,13 +1,12 @@
 import { Route, Routes } from 'react-router';
 import { ConfigProvider, theme } from 'antd';
 import { useTheme } from './hooks/useTheme';
-
-import DefaultPage from './pages/default';
-import SettingsPage from './pages/settings';
-import Book from './pages/book';
-import Providers from './providers';
-
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+import DefaultPage from '@/pages/default';
+import SettingsPage from '@/pages/settings';
+import Book from '@/pages/book';
+import Providers from '@/providers';
 
 const queryClient = new QueryClient();
 

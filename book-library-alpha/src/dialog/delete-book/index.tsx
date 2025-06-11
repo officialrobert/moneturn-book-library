@@ -1,8 +1,8 @@
-import { useSearchParams } from 'react-router';
-import { useBooks, useDialog } from '../../hooks';
 import { useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router';
 import { Button } from 'antd';
-import { deleteBookByIdApi } from '../../apis';
+import { useBooks, useDialog } from '@/hooks';
+import { deleteBookByIdApi } from '@/apis';
 
 const DeleteBookDialog = () => {
   const [searchParams] = useSearchParams();

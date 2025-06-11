@@ -1,10 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
-import { useBooksStore } from '../store';
 import { useShallow } from 'zustand/shallow';
 import { useMemo } from 'react';
 import { filter } from 'lodash';
 import { useParams, useSearchParams } from 'react-router';
-import { getBookInfoByIdApi, getBooksListByPageApi } from '../apis';
+import { useBooksStore } from '@/store';
+import { getBookInfoByIdApi, getBooksListByPageApi } from '@/apis';
 
 const useBooks = () => {
   const { booksListCurrentPage } = useBooksStore(

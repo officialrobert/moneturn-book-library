@@ -1,6 +1,6 @@
-import { useAppStore } from '../store';
 import { useShallow } from 'zustand/shallow';
-import { Dialogs } from '../types';
+import { useAppStore } from '@/store';
+import { Dialogs } from '@/types';
 
 const useDialog = () => {
   const { showDialog, setShowDialog } = useAppStore(

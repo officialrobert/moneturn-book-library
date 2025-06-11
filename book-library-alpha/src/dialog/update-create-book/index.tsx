@@ -1,15 +1,16 @@
 import { useShallow } from 'zustand/shallow';
-import { useAppStore } from '../../store';
+import { useAppStore } from '@/store';
 import { Controller, useForm, type SubmitHandler } from 'react-hook-form';
 import { Button, Input, Select, Result } from 'antd';
-import type { INewBookSubmitForm } from '../../types';
-import { createNewBookInfoApi, updateBookInfoApi } from '../../apis';
+import type { INewBookSubmitForm } from '@/types';
+import { createNewBookInfoApi, updateBookInfoApi } from '@/apis';
 import { useEffect, useMemo, useState } from 'react';
 import { isEmpty } from 'lodash';
-import { useAuthors, useBooks, useDialog } from '../../hooks';
-import { cn } from '../../lib';
-import { delay, grabApiErrorMessage } from '../../helpers';
+import { useAuthors, useBooks, useDialog } from '@/hooks';
+import { cn } from '@/lib';
+import { delay, grabApiErrorMessage } from '@/helpers';
 import type { AxiosError } from 'axios';
+import { bookShortSummaryMaxLength, bookTitleMaxLength } from '@/constants';
 
 const UpdateOrCreateBookDialog = () => {
   const { isUpdatingOrSubmittingBook, setIsUpdatingOrSubmittingBook } =
@@ -194,6 +195,7 @@ const UpdateOrCreateBookDialog = () => {
                 placeholder="Title"
                 className="relative w-full"
                 allowClear
+                maxLength={bookTitleMaxLength}
                 {...field}
               />
             </div>
@@ -212,7 +214,7 @@ const UpdateOrCreateBookDialog = () => {
                 placeholder="Short Summary"
                 className="relative w-full"
                 allowClear
-                maxLength={250}
+                maxLength={bookShortSummaryMaxLength}
                 {...field}
               />
             </div>

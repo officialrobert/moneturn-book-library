@@ -1,13 +1,14 @@
-import { Button } from 'antd';
-import { Modal } from 'antd';
-import { useAppStore } from '../../store';
+import { Button, Modal } from 'antd';
+import { useAppStore } from '@/store';
 import { useShallow } from 'zustand/shallow';
-import { Dialogs } from '../../types';
+import { Dialogs } from '@/types';
 import { PlusCircleFilled } from '@ant-design/icons';
+import { useScroll } from '@/hooks';
+import { useEffect } from 'react';
 
-import Header from '../../common/header';
-import UpdateOrCreateBookDialog from '../../dialog/update-create-book';
-import CreateAuthorDialog from '../../dialog/create-author';
+import Header from '@/common/header';
+import UpdateOrCreateBookDialog from '@/dialog/update-create-book';
+import CreateAuthorDialog from '@/dialog/create-author';
 
 const SettingsPage = () => {
   const { showDialog, isUpdatingOrSubmittingBook, setShowDialog } = useAppStore(
@@ -17,6 +18,12 @@ const SettingsPage = () => {
       setShowDialog: state.setShowDialog,
     })),
   );
+
+  const { scrollUp } = useScroll();
+
+  useEffect(() => {
+    scrollUp();
+  }, [scrollUp]);
 
   return (
     <>
