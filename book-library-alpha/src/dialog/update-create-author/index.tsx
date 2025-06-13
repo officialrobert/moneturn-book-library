@@ -1,17 +1,17 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useShallow } from 'zustand/shallow';
 import { Controller, useForm, type SubmitHandler } from 'react-hook-form';
 import { AxiosError } from 'axios';
 import { isEmpty } from 'lodash';
-import { useDialog } from '@/hooks';
+import { useAuthors, useDialog } from '@/hooks';
 import { useAppStore } from '@/store';
 import { type INewAuthorSubmitForm } from '@/types';
 import { cn } from '@/lib';
 import { Button, Input, Result } from 'antd';
 import { grabApiErrorMessage, delay } from '@/helpers';
-import { createNewAuthorInfoApi } from '@/apis';
+import { createNewAuthorInfoApi, updateAuthorInfoByIdApi } from '@/apis';
 
-const CreateAuthorDialog = () => {
+const UpdateOrCreateAuthorDialog = () => {
   const { isUpdatingOrSubmittingAuthor, setIsUpdatingOrSubmittingAuthor } =
     useAppStore(
       useShallow((state) => ({
@@ -21,6 +21,10 @@ const CreateAuthorDialog = () => {
     );
 
   const { closeDialog } = useDialog();
+
+  const { author, editAuthorId } = useAuthors();
+
+  const isUpdatingAuthor = useMemo(() => !!editAuthorId, [editAuthorId]);
 
   const [success, setSuccess] = useState(false);
 
@@ -43,10 +47,18 @@ const CreateAuthorDialog = () => {
     setIsUpdatingOrSubmittingAuthor(true);
 
     try {
-      await createNewAuthorInfoApi({
-        name: data.name,
-        bio: data.bio,
-      });
+      if (!isUpdatingAuthor) {
+        await createNewAuthorInfoApi({
+          name: data.name,
+          bio: data.bio,
+        });
+      } else {
+        await updateAuthorInfoByIdApi({
+          id: editAuthorId,
+          name: data.name,
+          bio: data.bio,
+        });
+      }
 
       // simulate delay
       await delay(1000);
@@ -54,8 +66,11 @@ const CreateAuthorDialog = () => {
       setSuccess(true);
     } catch (err) {
       setError(grabApiErrorMessage(err as Error | AxiosError));
-      setValue('name', '');
-      setValue('bio', '');
+
+      if (!isUpdatingAuthor) {
+        setValue('name', '');
+        setValue('bio', '');
+      }
     } finally {
       setIsUpdatingOrSubmittingAuthor(false);
     }
@@ -65,6 +80,7 @@ const CreateAuthorDialog = () => {
     if (error) {
       return error;
     }
+
     if (errors.name) {
       return errors.name.message;
     }
@@ -81,6 +97,20 @@ const CreateAuthorDialog = () => {
     setValue('bio', '');
   };
 
+  /**
+   * Initialize form values when author info is fetched
+   * For editing author
+   */
+  useEffect(() => {
+    if (!isEmpty(editAuthorId) && author?.id === editAuthorId) {
+      setValue('name', author?.name || '');
+      setValue('bio', author?.bio || '');
+    } else if (isEmpty(editAuthorId)) {
+      setValue('name', '');
+      setValue('bio', '');
+    }
+  }, [editAuthorId, author, setValue]);
+
   return (
     <div className="relative w-full box-border">
       <div
@@ -92,7 +122,11 @@ const CreateAuthorDialog = () => {
       >
         <Result
           status="success"
-          title="Author created successfully"
+          title={
+            isUpdatingAuthor
+              ? 'Author updated successfully'
+              : 'Author created successfully'
+          }
           subTitle="It may take a few seconds for the author to appear in the list."
           extra={[
             <Button
@@ -184,4 +218,4 @@ const CreateAuthorDialog = () => {
   );
 };
 
-export default CreateAuthorDialog;
+export default UpdateOrCreateAuthorDialog;

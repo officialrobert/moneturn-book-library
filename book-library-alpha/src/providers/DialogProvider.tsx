@@ -5,8 +5,10 @@ import { useAppStore } from '@/store';
 import { useShallow } from 'zustand/shallow';
 
 import UpdateOrCreateBookDialog from '@/dialog/update-create-book';
-import CreateAuthorDialog from '@/dialog/create-author';
 import DeleteBookDialog from '@/dialog/delete-book';
+import UpdateOrCreateAuthorDialog from '@/dialog/update-create-author';
+import AuthorsListDialog from '@/dialog/authors-list';
+import { useSearchParams } from 'react-router';
 
 const DialogProvider = ({ children }: { children: ReactNode }) => {
   const {
@@ -23,11 +25,14 @@ const DialogProvider = ({ children }: { children: ReactNode }) => {
     })),
   );
 
+  const [searchParams, setSearchParams] = useSearchParams();
+
   const isOpen = useMemo(() => {
     return (
       showDialog === Dialogs.updateOrCreateBook ||
-      showDialog === Dialogs.createAuthor ||
-      showDialog === Dialogs.deleteBook
+      showDialog === Dialogs.updateOrCreateAuthor ||
+      showDialog === Dialogs.deleteBook ||
+      showDialog === Dialogs.authorsList
     );
   }, [showDialog]);
 
@@ -44,16 +49,26 @@ const DialogProvider = ({ children }: { children: ReactNode }) => {
             return;
           }
 
+          searchParams.delete('edit');
+          searchParams.delete('delete');
+          searchParams.delete('editAuthorId');
+
+          setSearchParams(searchParams);
           setShowDialog(Dialogs.none);
         }}
+        className="md:w-[600px] lg:w-[720px]"
         okButtonProps={{ style: { display: 'none' } }}
+        forceRender={true}
         cancelButtonProps={{ style: { display: 'none' } }}
       >
         {showDialog === Dialogs.updateOrCreateBook && (
           <UpdateOrCreateBookDialog />
         )}
-        {showDialog === Dialogs.createAuthor && <CreateAuthorDialog />}
+        {showDialog === Dialogs.updateOrCreateAuthor && (
+          <UpdateOrCreateAuthorDialog />
+        )}
         {showDialog === Dialogs.deleteBook && <DeleteBookDialog />}
+        {showDialog === Dialogs.authorsList && <AuthorsListDialog />}
       </Modal>
     </>
   );

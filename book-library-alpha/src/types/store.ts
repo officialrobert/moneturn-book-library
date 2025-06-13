@@ -21,7 +21,8 @@ export enum SupportedThemes {
 
 export enum Dialogs {
   'updateOrCreateBook' = 'updateOrCreateBook',
-  'createAuthor' = 'createAuthor',
+  'updateOrCreateAuthor' = 'updateOrCreateAuthor',
+  'authorsList' = 'authorsList',
   'deleteBook' = 'deleteBook',
   'none' = 'none',
 }

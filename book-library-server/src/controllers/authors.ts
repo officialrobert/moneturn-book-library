@@ -6,6 +6,7 @@ import {
   createNewAuthor,
   deleteAuthorById,
   getAuthorById,
+  getAuthorsListByPage,
   getNowDateInISOString,
   updateAuthorPropsById,
 } from '@/helpers';
@@ -51,46 +52,12 @@ export async function getAuthorListByPageController(
 ): Promise<{ authors: IAuthor[]; pagination: IPagination }> {
   const { page = 1, limit = 10 } = request.query;
 
-  const offset = (page - 1) * limit;
-
-  const currentDate = getNowDateInISOString();
-
-  const [authorsResult, totalCount] = await Promise.all([
-    db
-      .select({
-        id: authors.id,
-      })
-      .from(authors)
-      .where(or(isNull(authors.deletedAt), gt(authors.deletedAt, currentDate)))
-      .orderBy(desc(authors.createdAt))
-      .limit(limit)
-      .offset(offset),
-    db
-      .select({ count: sql`count(*)` })
-      .from(authors)
-      .where(or(isNull(authors.deletedAt), gt(authors.deletedAt, currentDate))),
-  ]);
-
-  const authorsEnriched = await Promise.all(
-    authorsResult.map(async (author) => {
-      const authorInfo = await getAuthorById(author.id);
-      return authorInfo;
-    }),
-  );
-
-  const totalPages = Math.ceil(Number(head(totalCount)?.count) / limit);
-
-  const pagination: IPagination = {
-    currentPage: page,
-    totalPages: isNumber(totalPages) && totalPages > 0 ? totalPages : 1,
-    totalItems: Number(head(totalCount)?.count),
-    itemsPerPage: limit,
-  };
+  const { authors, pagination } = await getAuthorsListByPage({ page, limit });
 
   reply.status(200);
   return {
     pagination,
-    authors: authorsEnriched,
+    authors,
   };
 }
 

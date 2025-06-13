@@ -5,10 +5,10 @@ import { Button, Input, Select, Result } from 'antd';
 import type { INewBookSubmitForm } from '@/types';
 import { createNewBookInfoApi, updateBookInfoApi } from '@/apis';
 import { useEffect, useMemo, useState } from 'react';
-import { isEmpty } from 'lodash';
+import { isEmpty, trim } from 'lodash';
 import { useAuthors, useBooks, useDialog } from '@/hooks';
 import { cn } from '@/lib';
-import { delay, grabApiErrorMessage } from '@/helpers';
+import { delay, grabApiErrorMessage, isValidURLForImage } from '@/helpers';
 import type { AxiosError } from 'axios';
 import { bookShortSummaryMaxLength, bookTitleMaxLength } from '@/constants';
 
@@ -55,15 +55,24 @@ const UpdateOrCreateBookDialog = () => {
       return;
     }
 
-    setIsUpdatingOrSubmittingBook(true);
-
     try {
+      const imagePreview = trim(data.imagePreview || '');
+      const title = trim(data.title || '');
+      const shortSummary = trim(data.shortSummary || '');
+      const authorId = data.authorId || '';
       const props = {
-        title: data.title,
-        shortSummary: data.shortSummary,
-        imagePreview: data.imagePreview || '',
-        authorId: data.authorId || '',
+        imagePreview,
+        title,
+        shortSummary,
+        authorId,
       };
+
+      if (imagePreview && !isValidURLForImage(imagePreview)) {
+        setError('Invalid image URL');
+        return;
+      }
+
+      setIsUpdatingOrSubmittingBook(true);
 
       if (isUpdatingBook) {
         await updateBookInfoApi({
@@ -98,6 +107,7 @@ const UpdateOrCreateBookDialog = () => {
     if (error) {
       return error;
     }
+
     if (errors.title) {
       return errors.title.message;
     }

@@ -15,6 +15,7 @@ const useDialog = () => {
   return {
     showDialog,
     closeDialog,
+    setShowDialog,
   };
 };
 

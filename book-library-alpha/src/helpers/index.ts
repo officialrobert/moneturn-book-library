@@ -50,3 +50,17 @@ export async function delay(ms: number): Promise<void> {
     );
   });
 }
+
+/**
+ * Check if URL is valid for image.
+ *
+ * @param {string} url - URL to check.
+ * @returns {boolean} - True if URL is valid for image, false otherwise.
+ */
+export function isValidURLForImage(url: string): boolean {
+  return (
+    url.startsWith('http://') ||
+    url.startsWith('https://') ||
+    url?.startsWith('data:image')
+  );
+}

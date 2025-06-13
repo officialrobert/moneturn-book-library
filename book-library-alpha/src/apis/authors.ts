@@ -68,7 +68,7 @@ export async function getAuthorListByPageApi(params: {
   page: number;
   limit?: number;
 }): Promise<{ authors: IAuthor[]; pagination: IPagination }> {
-  const { page, limit = 10 } = params;
+  const { page, limit = 20 } = params;
 
   const url = getServerApiBaseUrl();
 
@@ -83,4 +83,83 @@ export async function getAuthorListByPageApi(params: {
   }>(`${url}/authors/list?${searchParams.toString()}`);
 
   return { ...res?.data };
+}
+
+/**
+ * Get author info by id.
+ *
+ * @param {Object} params - The parameters for getting author info.
+ * @param {string} params.id - The id of the author.
+ * @returns {Promise<{ author: IAuthor }>}
+ * The author info.
+ */
+export async function getAuthorInfoByIdApi(params: {
+  id: string;
+}): Promise<{ author: IAuthor }> {
+  const { id } = params;
+
+  if (!id) {
+    throw new Error('Author id is required');
+  }
+
+  const url = getServerApiBaseUrl();
+
+  const res = await axios.get<{ author: IAuthor }>(`${url}/authors/${id}`);
+
+  return res?.data;
+}
+
+/**
+ * Update author info by id.
+ *
+ * @param {Object} params - The parameters for updating author info.
+ * @param {string} params.id - The id of the author. (required)
+ * @param {string} params.name - The name of the author. (optional)
+ * @param {string} params.bio - The bio of the author. (optional)
+ * @returns {Promise<{ author: IAuthor }>}
+ * The updated author info.
+ */
+export async function updateAuthorInfoByIdApi(params: {
+  id: string;
+  name?: string;
+  bio?: string;
+}): Promise<{ author: IAuthor }> {
+  const { id, name, bio } = params;
+
+  if (!id) {
+    throw new Error('Author id is required');
+  }
+
+  const url = getServerApiBaseUrl();
+
+  const res = await axios.patch<{ author: IAuthor }>(`${url}/authors/${id}`, {
+    name,
+    bio,
+  });
+
+  return res?.data;
+}
+
+/**
+ * Delete author info by id.
+ *
+ * @param {Object} params - The parameters for deleting author info.
+ * @param {string} params.id - The id of the author. (required)
+ * @returns {Promise<{ author: IAuthor }>}
+ * The deleted author info.
+ */
+export async function deleteAuthorByIdApi(params: {
+  id: string;
+}): Promise<{ author: IAuthor }> {
+  const { id } = params;
+
+  if (!id) {
+    throw new Error('Author id is required');
+  }
+
+  const url = getServerApiBaseUrl();
+
+  const res = await axios.delete<{ author: IAuthor }>(`${url}/authors/${id}`);
+
+  return res?.data;
 }

@@ -2,13 +2,14 @@ import { Button, Modal } from 'antd';
 import { useAppStore } from '@/store';
 import { useShallow } from 'zustand/shallow';
 import { Dialogs } from '@/types';
-import { PlusCircleFilled } from '@ant-design/icons';
+import { ArrowRightOutlined, PlusCircleFilled } from '@ant-design/icons';
 import { useScroll } from '@/hooks';
 import { useEffect } from 'react';
+import { useSearchParams } from 'react-router';
 
 import Header from '@/common/header';
 import UpdateOrCreateBookDialog from '@/dialog/update-create-book';
-import CreateAuthorDialog from '@/dialog/create-author';
+import UpdateOrCreateAuthorDialog from '@/dialog/update-create-author';
 
 const SettingsPage = () => {
   const { showDialog, isUpdatingOrSubmittingBook, setShowDialog } = useAppStore(
@@ -19,11 +20,31 @@ const SettingsPage = () => {
     })),
   );
 
+  const [searchParams, setSearchParams] = useSearchParams();
+
   const { scrollUp } = useScroll();
 
   useEffect(() => {
     scrollUp();
   }, [scrollUp]);
+
+  const handleNewAuthor = () => {
+    searchParams.delete('edit');
+    searchParams.delete('editAuthorId');
+    setSearchParams(searchParams);
+    setShowDialog(Dialogs.updateOrCreateAuthor);
+  };
+
+  const handleNewBook = () => {
+    searchParams.delete('edit');
+    searchParams.delete('editBookId');
+    setSearchParams(searchParams);
+    setShowDialog(Dialogs.updateOrCreateBook);
+  };
+
+  const handleAuthorsList = () => {
+    setShowDialog(Dialogs.authorsList);
+  };
 
   return (
     <>
@@ -36,7 +57,7 @@ const SettingsPage = () => {
               <Button
                 type="primary"
                 className="w-full flex"
-                onClick={() => setShowDialog(Dialogs.updateOrCreateBook)}
+                onClick={handleNewBook}
               >
                 New Book
                 <PlusCircleFilled />
@@ -44,9 +65,16 @@ const SettingsPage = () => {
               <Button
                 type="primary"
                 className="w-full mt-4"
-                onClick={() => setShowDialog(Dialogs.createAuthor)}
+                onClick={handleNewAuthor}
               >
                 New Author <PlusCircleFilled />
+              </Button>
+              <Button
+                type="primary"
+                className="w-full mt-4"
+                onClick={handleAuthorsList}
+              >
+                Authors List <ArrowRightOutlined />
               </Button>
             </div>
           </div>
@@ -56,7 +84,7 @@ const SettingsPage = () => {
       <Modal
         open={
           showDialog === Dialogs.updateOrCreateBook ||
-          showDialog === Dialogs.createAuthor
+          showDialog === Dialogs.updateOrCreateAuthor
         }
         closable
         maskClosable={false}
@@ -73,7 +101,9 @@ const SettingsPage = () => {
         {showDialog === Dialogs.updateOrCreateBook && (
           <UpdateOrCreateBookDialog />
         )}
-        {showDialog === Dialogs.createAuthor && <CreateAuthorDialog />}
+        {showDialog === Dialogs.updateOrCreateAuthor && (
+          <UpdateOrCreateAuthorDialog />
+        )}
       </Modal>
     </>
   );

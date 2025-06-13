@@ -1,8 +1,9 @@
-import { IAuthor } from '@/types';
+import { IAuthor, IPagination } from '@/types';
 import { db, authors } from '@/db';
-import { eq } from 'drizzle-orm';
-import { head, isEmpty, map, omit } from 'lodash';
+import { eq, desc, sql, isNull, or, gt } from 'drizzle-orm';
+import { head, isEmpty, isNumber, map, omit } from 'lodash';
 import { v4 as uuid } from 'uuid';
+import { getNowDateInISOString } from '../date';
 
 /**
  * Creates a new author in the database.
@@ -156,4 +157,57 @@ export async function deleteAuthorById(id: string): Promise<IAuthor | null> {
     console.log('deleteAuthorById() err:', err);
     return null;
   }
+}
+
+/**
+ * Get authors list by page.
+ *
+ * @param {Object} params
+ * @param {number} params.page - The page number.
+ * @param {number} params.limit - The number of items per page.
+ * @returns {Promise<{ authors: IAuthor[]; pagination: IPagination }>}
+ */
+export async function getAuthorsListByPage(params: {
+  page: number;
+  limit: number;
+}): Promise<{ authors: IAuthor[]; pagination: IPagination }> {
+  const { page = 1, limit = 10 } = params;
+  const offset = (page - 1) * limit;
+  const currentDate = getNowDateInISOString();
+  const [authorsResult, totalCount] = await Promise.all([
+    db
+      .select({
+        id: authors.id,
+      })
+      .from(authors)
+      .where(or(isNull(authors.deletedAt), gt(authors.deletedAt, currentDate)))
+      .orderBy(desc(authors.createdAt))
+      .limit(limit)
+      .offset(offset),
+    db
+      .select({ count: sql`count(*)` })
+      .from(authors)
+      .where(or(isNull(authors.deletedAt), gt(authors.deletedAt, currentDate))),
+  ]);
+
+  const authorsEnriched = await Promise.all(
+    authorsResult.map(async (author) => {
+      const authorInfo = await getAuthorById(author.id);
+      return authorInfo;
+    }),
+  );
+
+  const totalPages = Math.ceil(Number(head(totalCount)?.count) / limit);
+
+  const pagination: IPagination = {
+    currentPage: page,
+    totalPages: isNumber(totalPages) && totalPages > 0 ? totalPages : 1,
+    totalItems: Number(head(totalCount)?.count),
+    itemsPerPage: limit,
+  };
+
+  return {
+    pagination,
+    authors: authorsEnriched,
+  };
 }

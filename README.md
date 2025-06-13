@@ -109,8 +109,11 @@ Navigate to the `book-library-alpha` directory and run
 npm run dev
 ```
 
+## Experiencing errors when running the server app?
 
-
+- Make sure Docker engine is running
+- Make sure PostgreSQL database is running
+- Make sure the server project dependencies are installed
 
 ## Links
 
