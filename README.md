@@ -113,6 +113,7 @@ npm run dev
 
 - Make sure Docker engine is running
 - Make sure PostgreSQL database is running
+- Make sure the environment variables are set
 - Make sure the server project dependencies are installed
 
 ## Links
