@@ -57,6 +57,20 @@ npm run db:generate
 npm run db:migrate
 ```
 
+## Server environment variables
+
+```bash
+PORT=3001
+
+# postgres docker
+POSTGRES_USER="book_library_user_postgres"
+POSTGRES_PASSWORD="book_library_password_postgres"
+POSTGRES_DB="book_library"
+POSTGRES_HOST="book_library_postgres"
+POSTGRES_PORT="5432"
+
+DATABASE_URL='postgresql://book_library_user_postgres:book_library_password_postgres@localhost:5432/book_library'
+```
 
 ## Running the server app
 
@@ -94,6 +108,7 @@ Navigate to the `book-library-alpha` directory and run
 ```bash
 npm run dev
 ```
+
 
 
 
