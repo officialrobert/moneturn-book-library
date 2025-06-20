@@ -3,9 +3,8 @@ import { head, isEmpty, isNumber, map, omit, toLower, trim } from 'lodash';
 import { IBook, IBookWithAuthor, IPagination } from '@/types';
 import { eq, and, desc, sql, isNull, or, gt } from 'drizzle-orm';
 import { formatBookImagePreviewProperty } from '../books';
-import { NewBooksQueue } from '@/lib';
+import { Cache, NewBooksQueue } from '@/lib';
 import { v4 as uuid } from 'uuid';
-import { getAuthorById } from './authors';
 import { getNowDateInISOString } from '../date';
 
 /**
@@ -205,13 +204,9 @@ export async function getBooksListByPage(params: {
 
   const booksEnriched = await Promise.all(
     booksResult.map(async (book) => {
-      const bookInfo = await getBookInfoById(book.id, true);
-      const authorInfo = await getAuthorById(bookInfo.authorId);
+      const bookInfo = await Cache.getBookWithAuthorById(book.id, true);
 
-      return {
-        ...bookInfo,
-        author: authorInfo,
-      };
+      return bookInfo;
     }),
   );
 
@@ -280,13 +275,9 @@ export async function searchBooksByMatchString(params: {
 
   const booksEnriched = await Promise.all(
     booksList.map(async (book) => {
-      const bookInfo = await getBookInfoById(book.id, true);
-      const authorInfo = await getAuthorById(bookInfo.authorId);
+      const bookInfo = await Cache.getBookWithAuthorById(book.id, true);
 
-      return {
-        ...bookInfo,
-        author: authorInfo,
-      };
+      return bookInfo;
     }),
   );
   const totalPages = Math.ceil(Number(head(totalCount)?.count) / targetLimit);

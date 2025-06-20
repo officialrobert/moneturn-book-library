@@ -153,12 +153,6 @@ export class Queue {
   }
 }
 
-const onCompleteBooksOperation = () => {
-  console.log('Books operations queue completed');
-};
-
 export const NewBooksQueue = new Queue({
   concurrency: 1,
 });
-
-NewBooksQueue.addEventListener('completed', onCompleteBooksOperation);

@@ -1,19 +1,15 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
-import { desc, and, sql, isNull, or, gt } from 'drizzle-orm';
-import { db, books } from '@/db';
-import { head, isNumber, toLower, trim } from 'lodash';
 import { IBook, IBookWithAuthor, IPagination } from '@/types';
 import {
   createNewBook,
   deleteBookById,
-  getAuthorById,
-  getBookInfoById,
   getBooksListByPage,
   getNowDateInISOString,
   searchBooksByMatchString,
   updateBookPropsById,
 } from '@/helpers';
 import { v4 as uuid } from 'uuid';
+import { Cache } from '@/lib';
 
 /**
  * Insert new book record.
@@ -52,6 +48,9 @@ export async function insertNewBookController(
     updatedAt: null,
     deletedAt: null,
   });
+  const author = await Cache.getAuthorById(authorId);
+
+  Cache.setBookData(bookId, { ...newBook, author });
 
   reply.status(201);
   return { book: newBook };
@@ -79,17 +78,15 @@ export async function getBookByIdController(
     throw new Error('Book id is required');
   }
 
-  const bookInfo = await getBookInfoById(id);
+  const bookInfo = await Cache.getBookWithAuthorById(id);
 
   if (!bookInfo) {
     reply.status(404);
     throw new Error('Book not found');
   }
 
-  const authorInfo = await getAuthorById(bookInfo.authorId);
-
   reply.status(200);
-  return { book: { ...bookInfo, author: authorInfo } };
+  return { book: bookInfo };
 }
 
 /**
@@ -161,7 +158,12 @@ export async function updateBookInfoByIdController(
     true,
   );
 
-  const authorInfo = await getAuthorById(updatedBook.authorId);
+  const authorInfo = await Cache.getAuthorById(updatedBook.authorId);
+
+  Cache.setBookData(id, {
+    ...updatedBook,
+    author: authorInfo,
+  });
 
   reply.status(200);
   return {
@@ -189,7 +191,7 @@ export async function deleteBookInfoController(
 ): Promise<{ message: string; book?: IBook }> {
   const { id } = request.params;
 
-  const existingBooks = await getBookInfoById(id, true);
+  const existingBooks = await Cache.getBookWithAuthorById(id, true);
 
   if (!existingBooks) {
     reply.status(404);

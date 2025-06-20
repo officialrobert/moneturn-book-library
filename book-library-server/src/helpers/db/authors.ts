@@ -1,9 +1,10 @@
 import { IAuthor, IPagination } from '@/types';
 import { db, authors } from '@/db';
-import { eq, desc, sql, isNull, or, gt } from 'drizzle-orm';
-import { head, isEmpty, isNumber, map, omit } from 'lodash';
+import { eq, desc, sql, isNull, or, gt, and } from 'drizzle-orm';
+import { head, isEmpty, isNumber, map, omit, toLower, trim } from 'lodash';
 import { v4 as uuid } from 'uuid';
 import { getNowDateInISOString } from '../date';
+import { Cache } from '@/lib';
 
 /**
  * Creates a new author in the database.
@@ -204,6 +205,78 @@ export async function getAuthorsListByPage(params: {
     totalPages: isNumber(totalPages) && totalPages > 0 ? totalPages : 1,
     totalItems: Number(head(totalCount)?.count),
     itemsPerPage: limit,
+  };
+
+  return {
+    pagination,
+    authors: authorsEnriched,
+  };
+}
+
+/**
+ * Search authors by match string.
+ *
+ * @param {Object} params
+ * @param {string} params.search - The search string.
+ * @param {number} params.page - The page number.
+ * @param {number} params.limit - The number of items per page. Default is 10.
+ * @returns {Promise<{ authors: IAuthor[]; pagination: IPagination }>}
+ */
+export async function searchAuthorsByMatchString(params: {
+  search: string;
+  page?: number;
+  limit?: number;
+}): Promise<{ authors: IAuthor[]; pagination: IPagination }> {
+  const { search, page = 1, limit = 10 } = params;
+  const currentDate = getNowDateInISOString();
+  const normalizedSearch = toLower(trim(search));
+  const targetLimit = isNumber(limit) && limit > 10 ? limit : 10;
+  const [authorsList, totalCount] = await Promise.all([
+    db
+      .select({
+        id: authors.id,
+      })
+      .from(authors)
+      .where(
+        and(
+          or(
+            sql`LOWER(${authors.name}) ILIKE ${`%${normalizedSearch}%`}`,
+            sql`LOWER(${authors.bio}) ILIKE ${`%${normalizedSearch}%`}`,
+          ),
+          or(isNull(authors.deletedAt), gt(authors.deletedAt, currentDate)),
+        ),
+      )
+      .orderBy(desc(authors.createdAt))
+      .limit(targetLimit)
+      .offset((page - 1) * targetLimit),
+    db
+      .select({ count: sql`count(*)` })
+      .from(authors)
+      .where(
+        and(
+          or(
+            sql`LOWER(${authors.name}) ILIKE ${`%${normalizedSearch}%`}`,
+            sql`LOWER(${authors.bio}) ILIKE ${`%${normalizedSearch}%`}`,
+          ),
+          or(isNull(authors.deletedAt), gt(authors.deletedAt, currentDate)),
+        ),
+      ),
+  ]);
+
+  const authorsEnriched = await Promise.all(
+    authorsList.map(async (author) => {
+      const authorInfo = await Cache.getAuthorById(author.id);
+      return authorInfo;
+    }),
+  );
+
+  const totalPages = Math.ceil(Number(head(totalCount)?.count) / targetLimit);
+
+  const pagination: IPagination = {
+    currentPage: page,
+    totalPages: isNumber(totalPages) && totalPages > 0 ? totalPages : 1,
+    totalItems: Number(head(totalCount)?.count),
+    itemsPerPage: targetLimit,
   };
 
   return {
